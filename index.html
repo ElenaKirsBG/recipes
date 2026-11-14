@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мои рецепты</title>
+<meta name="description" content="Кулинарная книга: распознавание рукописных рецептов со сканов, поиск по названию и ингредиентам, архивные копии.">
+<meta name="author" content="Elena Kirsanova">
+<meta name="copyright" content="© 2026 Elena Kirsanova. Все права защищены.">
+<meta name="theme-color" content="#f7f3ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Рецепты">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="fontLink" rel="stylesheet" href="">
+<style>
+/* © 2026 Elena Kirsanova. Все права защищены. */
+:root{
+  --bg:#f7f3ec;--surface:#fffdf9;--surface2:#f1ebe1;--text:#2f2a24;--muted:#8a8074;
+  --accent:#9a6b4b;--accent-soft:#efe2d6;--accent-text:#fff;--border:#e6ddd0;--danger:#a4473f;
+  --ok:#5f7d61;--shadow:0 1px 2px rgba(60,40,20,.06),0 4px 14px rgba(60,40,20,.06);
+  --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-head:var(--font-body);
+  --fs:17px;--radius:14px;
+  --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
+}
+[data-theme="sage"]{--bg:#eef2ec;--surface:#fbfcfa;--surface2:#e3eae1;--text:#263127;--muted:#6f7d70;--accent:#5f7d61;--accent-soft:#dfe8dd;--border:#d8e0d5}
+[data-theme="lavender"]{--bg:#f2f0f6;--surface:#fdfcff;--surface2:#e9e5f0;--text:#2c2836;--muted:#7e7890;--accent:#7a6a9a;--accent-soft:#e6e0f0;--border:#e0dbe9}
+[data-theme="sepia"]{--bg:#efe6d6;--surface:#f8f1e4;--surface2:#e8dcc6;--text:#3b2f22;--muted:#85735c;--accent:#8b5e34;--accent-soft:#e9d8c0;--border:#dccdb3}
+[data-theme="graphite"]{--bg:#1c1d1f;--surface:#26282b;--surface2:#2f3236;--text:#e9e6e1;--muted:#9a958e;--accent:#c9a27e;--accent-soft:#3a332b;--accent-text:#1c1d1f;--border:#3a3c40;--danger:#d98078;--ok:#8fb592;--shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25)}
+[data-theme="night"]{--bg:#121822;--surface:#1b2330;--surface2:#232d3c;--text:#e3e8ef;--muted:#8d99aa;--accent:#8fb3d9;--accent-soft:#25344a;--accent-text:#121822;--border:#2c3747;--danger:#e08a80;--ok:#8fc0a0;--shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:var(--font-body);font-size:var(--fs);line-height:1.5;min-height:100vh;padding-bottom:calc(76px + var(--safe-b))}
+h1,h2,h3,.head-font{font-family:var(--font-head);font-weight:600;line-height:1.25;margin:0}
+h1{font-size:1.6em}h2{font-size:1.25em}h3{font-size:1.05em}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+.hidden{display:none!important}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+header.top{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(10px + var(--safe-t)) 0 10px;border-bottom:1px solid transparent}
+header.top.scrolled{border-bottom-color:var(--border)}
+.top-row{display:flex;align-items:center;gap:10px}
+.top-row h1{flex:1;font-size:1.45em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{border:none;background:transparent;width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);flex:none}
+.icon-btn:hover{background:var(--surface2)}
+.icon-btn svg{width:22px;height:22px}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);padding:10px 16px;border-radius:12px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;justify-content:center;font-size:.95em;min-height:44px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.btn.soft{background:var(--accent-soft);border-color:transparent;color:var(--text)}
+.btn.danger{color:var(--danger);border-color:var(--border)}
+.btn.small{padding:6px 12px;min-height:36px;font-size:.88em}
+.btn:disabled{opacity:.5;cursor:default}
+.btn svg{width:18px;height:18px;flex:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grow{flex:1}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.pad{padding:16px}
+.muted{color:var(--muted)}
+.small{font-size:.85em}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:var(--accent-soft);font-size:.8em;color:var(--text);white-space:nowrap}
+.chip.outline{background:transparent;border:1px solid var(--border)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip-btn{border:1px solid var(--border);background:var(--surface);padding:6px 12px;border-radius:999px;cursor:pointer;font-size:.85em;white-space:nowrap}
+.chip-btn.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.hscroll{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+/* search */
+.search{position:relative;margin-top:10px}
+.search input{width:100%;padding:12px 44px 12px 44px;border-radius:14px;border:1px solid var(--border);background:var(--surface);outline:none;font-size:1em}
+.search input:focus{border-color:var(--accent)}
+.search input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+.search .s-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);width:20px;height:20px}
+.search .s-clear{position:absolute;right:4px;top:50%;transform:translateY(-50%)}
+.filters{margin-top:8px}
+.list{display:grid;gap:10px;margin:12px 0 20px}
+@media(min-width:700px){.list{grid-template-columns:1fr 1fr}}
+.r-card{padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;position:relative}
+.r-card:active{transform:scale(.995)}
+.r-card h3{padding-right:28px;font-size:1.08em}
+.r-card .star{position:absolute;right:12px;top:12px;color:var(--accent)}
+.r-card .snip{font-size:.88em;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+mark{background:var(--accent-soft);color:inherit;border-radius:3px;padding:0 2px}
+.empty{text-align:center;padding:48px 16px;color:var(--muted)}
+.empty .big{font-size:3em;line-height:1;margin-bottom:10px}
+.count-line{display:flex;justify-content:space-between;align-items:center;font-size:.85em;color:var(--muted);margin-top:10px}
+.count-line select{border:none;background:transparent;color:var(--muted);font-size:1em;cursor:pointer}
+/* bottom nav */
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 6px calc(6px + var(--safe-b))}
+nav.bottom button{flex:1;border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.72em;color:var(--muted);padding:6px 0;cursor:pointer;border-radius:12px}
+nav.bottom button svg{width:24px;height:24px}
+nav.bottom button.on{color:var(--accent)}
+nav.bottom .add-main{color:var(--accent-text)}
+nav.bottom .add-main span.ico{background:var(--accent);border-radius:14px;width:46px;height:34px;display:flex;align-items:center;justify-content:center}
+/* forms */
+label.f{display:block;margin:14px 0 6px;font-size:.85em;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.inp,textarea.inp,select.inp{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:var(--surface);outline:none}
+.inp:focus{border-color:var(--accent)}
+textarea.inp{resize:vertical;min-height:110px;line-height:1.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:520px){.grid3{grid-template-columns:1fr 1fr}.grid3>:first-child{grid-column:1/-1}}
+.hint{font-size:.8em;color:var(--muted);margin-top:4px}
+details.box{border:1px solid var(--border);border-radius:12px;background:var(--surface);margin-top:14px}
+details.box summary{padding:12px 14px;cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.box summary::-webkit-details-marker{display:none}
+details.box summary::after{content:"›";transform:rotate(90deg);transition:.2s;color:var(--muted);font-size:1.3em}
+details.box[open] summary::after{transform:rotate(270deg)}
+details.box .in{padding:0 14px 14px}
+/* scans */
+.scan-zone{border:1.5px dashed var(--border);border-radius:var(--radius);padding:16px;background:var(--surface);text-align:center}
+.scan-zone.drag{border-color:var(--accent);background:var(--accent-soft)}
+.thumbs{display:flex;gap:10px;overflow-x:auto;padding:10px 0 4px}
+.thumb{position:relative;flex:none;width:110px}
+.thumb img{width:110px;height:140px;object-fit:cover;border-radius:10px;border:1px solid var(--border);display:block;background:var(--surface2);cursor:zoom-in}
+.thumb .tb{display:flex;justify-content:space-between;margin-top:4px}
+.thumb .tb button{border:none;background:var(--surface2);border-radius:8px;width:32px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text)}
+.thumb .tb svg{width:16px;height:16px}
+.thumb .num{position:absolute;left:6px;top:6px;background:rgba(0,0,0,.55);color:#fff;font-size:.72em;border-radius:6px;padding:1px 6px}
+.ocr-bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+/* view */
+.v-head{margin:6px 0 10px}
+.v-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.v-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.sect{margin-top:14px}
+.sect h2{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:1.15em}
+.sect h2::before{content:"";width:4px;height:1.05em;border-radius:3px;background:var(--accent)}
+ul.ing{list-style:none;margin:0;padding:0}
+ul.ing li{padding:8px 0;border-bottom:1px dashed var(--border);display:flex;gap:10px;align-items:flex-start}
+ul.ing li:last-child{border-bottom:none}
+ul.ing li.sub{font-weight:600;border-bottom:none;padding-top:12px;color:var(--accent)}
+ul.ing li .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:.65em;flex:none;opacity:.6}
+ol.steps{margin:0;padding:0;list-style:none;counter-reset:st}
+ol.steps li{counter-increment:st;position:relative;padding:4px 0 14px 44px}
+ol.steps li::before{content:counter(st);position:absolute;left:0;top:2px;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.9em}
+.scale{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.88em}
+.gallery{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.gallery img{height:180px;border-radius:10px;border:1px solid var(--border);cursor:zoom-in;flex:none}
+.raw{white-space:pre-wrap;font-size:.88em;background:var(--surface2);padding:12px;border-radius:10px;max-height:340px;overflow:auto}
+/* cook mode */
+#cook{position:fixed;inset:0;z-index:60;background:var(--bg);overflow:auto;padding:calc(12px + var(--safe-t)) 0 calc(24px + var(--safe-b));font-size:1.18em}
+#cook li{cursor:pointer;user-select:none}
+#cook li.done{opacity:.4;text-decoration:line-through}
+#cook ol.steps li.cur::before{background:var(--accent);color:var(--accent-text)}
+#cook ul.ing li .cb{width:22px;height:22px;border:2px solid var(--accent);border-radius:6px;flex:none;margin-top:.15em}
+#cook ul.ing li.done .cb{background:var(--accent)}
+/* modal & viewer */
+.ov{position:fixed;inset:0;z-index:80;background:rgba(20,15,10,.45);display:flex;align-items:flex-end;justify-content:center;padding:0}
+@media(min-width:600px){.ov{align-items:center;padding:20px}}
+.modal{background:var(--surface);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:20px 18px calc(18px + var(--safe-b));max-height:90vh;overflow:auto}
+@media(min-width:600px){.modal{border-radius:20px}}
+.modal h2{margin-bottom:8px}
+.modal .btns{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+#imgView{position:fixed;inset:0;z-index:90;background:#000;display:flex;align-items:center;justify-content:center;overflow:auto;touch-action:pinch-zoom}
+#imgView img{max-width:100%;max-height:100%}
+#imgView.zoom{align-items:flex-start;justify-content:flex-start}
+#imgView.zoom img{max-width:none;max-height:none;width:200%}
+#imgView .close{position:fixed;right:12px;top:calc(12px + var(--safe-t));background:rgba(255,255,255,.15);color:#fff}
+#busy .modal{text-align:center}
+.prog{height:8px;border-radius:8px;background:var(--surface2);overflow:hidden;margin:14px 0 6px}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.spinner{width:36px;height:36px;border:3px solid var(--accent-soft);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;margin:6px auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;bottom:calc(92px + var(--safe-b));transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:12px;font-size:.9em;opacity:0;pointer-events:none;transition:.25s;z-index:100;max-width:90%;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* settings */
+.set-group{margin:18px 0}
+.set-group>h2{font-size:1.05em;margin:0 0 8px 4px;color:var(--muted);font-weight:600}
+.set-item{padding:14px 16px;border-bottom:1px solid var(--border)}
+.set-item:last-child{border-bottom:none}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:10px}
+.th{border:2px solid var(--border);border-radius:14px;padding:8px;cursor:pointer;text-align:center;font-size:.82em;background:var(--surface)}
+.th.on{border-color:var(--accent)}
+.th .sw{height:40px;border-radius:9px;margin-bottom:6px;display:flex;overflow:hidden;border:1px solid rgba(0,0,0,.08)}
+.th .sw i{flex:1}
+.fonts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}
+.fo{border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--surface)}
+.fo.on{border-color:var(--accent)}
+.fo .s{font-size:1.25em;line-height:1.2}
+.fo .n{font-size:.75em;color:var(--muted);margin-top:4px;font-family:var(--font-body)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}
+.switch input{width:46px;height:28px;appearance:none;-webkit-appearance:none;background:var(--border);border-radius:28px;position:relative;cursor:pointer;flex:none;transition:.2s}
+.switch input::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{left:21px}
+.seg{display:flex;background:var(--surface2);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;border:none;background:transparent;padding:8px 6px;border-radius:9px;cursor:pointer;font-size:.86em;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.snap{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.snap:last-child{border-bottom:none}
+.banner{background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:.9em;display:flex;gap:10px;align-items:center}
+footer.copy{text-align:center;color:var(--muted);font-size:.78em;margin:24px 0 8px}
+/* print */
+#printArea{display:none}
+@media print{
+  body{background:#fff;color:#000;padding:0;font-size:12pt}
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:block}
+  .p-rec{page-break-after:always;padding:8mm 4mm}
+  .p-rec:last-child{page-break-after:auto}
+  .p-rec h1{font-size:20pt;margin-bottom:4pt}
+  .p-rec h2{font-size:13pt;margin:12pt 0 4pt;border-bottom:1px solid #999}
+  .p-rec .meta{color:#555;font-size:10pt}
+  .p-rec img{max-width:48%;max-height:110mm;margin:4pt 4pt 0 0;border:1px solid #ccc}
+  .p-copy{font-size:8pt;color:#777;margin-top:10pt}
+}
+</style>
+</head>
+<body data-theme="cream">
+
+<!-- ========== СПИСОК ========== -->
+<section id="v-list" class="view">
+  <header class="top"><div class="wrap">
+    <div class="top-row">
+      <h1 class="head-font">Мои рецепты</h1>
+      <button class="icon-btn" id="favToggle" title="Только избранное" aria-label="Только избранное"></button>
+    </div>
+    <div class="search">
+      <svg class="s-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Название или ингредиент: «творог», «борщ»…" autocomplete="off" enterkeyhint="search">
+      <button class="icon-btn s-clear hidden" id="qClear" aria-label="Очистить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="filters">
+      <div class="hscroll" id="scopeBar"></div>
+      <div class="hscroll" id="catBar"></div>
+    </div>
+  </div></header>
+  <div class="wrap">
+    <div id="backupBanner"></div>
+    <div class="count-line"><span id="countLbl"></span>
+      <select id="sortSel" aria-label="Сортировка">
+        <option value="rel">по совпадению</option>
+        <option value="az">по алфавиту</option>
+        <option value="new">сначала новые</option>
+        <option value="upd">недавно изменённые</option>
+      </select>
+    </div>
+    <div class="list" id="list"></div>
+    <footer class="copy">© 2026 Elena Kirsanova · «Мои рецепты»</footer>
+  </div>
+</section>
+
+<!-- ========== ПРОСМОТР ========== -->
+<section id="v-view" class="view hidden">
+  <header class="top"><div class="wrap"><div class="top-row">
+    <button class="icon-btn" data-back aria-label="Назад"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <span class="grow"></span>
+    <button class="icon-btn" id="vFav" aria-label="В избранное"></button>
+    <button class="icon-btn" id="vEdit" aria-label="Изменить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m14 6 4 4"/></svg></button>
+    <button class="icon-btn" id="vMore" aria-label="Ещё"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+  </div></div></header>
+  <div class="wrap" id="viewBody"></div>
+</section>
+
+<!-- ========== РЕДАКТОР ========== -->
+<section id="v-edit" class="view hidden">
+  <header class="top"><div class="wrap"><div class="top-row">
+    <button class="icon-btn" data-back aria-label="Назад"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h1 class="head-font" id="eTitle" style="font-size:1.2em">Новый рецепт</h1>
+    <button class="btn primary small" id="eSave">Сохранить</button>
+  </div></div></header>
+  <div class="wrap" style="padding-bottom:30px">
+    <div class="scan-zone" id="scanZone">
+      <div class="head-font" style="font-size:1.05em">Сканы и фото рецепта</div>
+      <div class="muted small" style="margin-top:4px">Рукописные или печатные страницы. Можно несколько — они распознаются вместе, по порядку.</div>
+      <div class="row" style="justify-content:center;margin-top:12px">
+        <button class="btn soft" id="btnCam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Сфотографировать</button>
+        <button class="btn soft" id="btnFiles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>Загрузить сканы</button>
+      </div>
+      <input type="file" id="fCam" accept="image/*" capture="environment" class="hidden">
+      <input type="file" id="fFiles" accept="image/*" multiple class="hidden">
+      <div class="thumbs" id="thumbs"></div>
+      <div class="ocr-bar hidden" id="ocrBar">
+        <button class="btn primary" id="btnOcr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M8 9h8M8 12h8M8 15h5"/></svg>Распознать и заполнить</button>
+        <select class="inp" id="ocrEngine" style="width:auto;min-height:44px">
+          <option value="gemini">ИИ Gemini (рукопись)</option>
+          <option value="claude">ИИ Claude (рукопись)</option>
+          <option value="tess">Офлайн (печатный текст)</option>
+        </select>
+      </div>
+      <div class="hint" id="ocrHint"></div>
+    </div>
+
+    <label class="f" for="eName">Название</label>
+    <input class="inp head-font" id="eName" placeholder="Например: Бабушкины сырники" style="font-size:1.15em">
+
+    <div class="grid3">
+      <div><label class="f" for="eCat">Раздел</label><input class="inp" id="eCat" list="catList" placeholder="Выпечка"></div>
+      <div><label class="f" for="eServ">Порций</label><input class="inp" id="eServ" inputmode="decimal" placeholder="4"></div>
+      <div><label class="f" for="eTime">Время</label><input class="inp" id="eTime" placeholder="40 мин"></div>
+    </div>
+    <datalist id="catList"></datalist>
+
+    <label class="f" for="eIng">Ингредиенты <span class="muted" style="font-weight:400">— каждый с новой строки</span></label>
+    <textarea class="inp" id="eIng" rows="7" placeholder="Творог 500 г&#10;Яйцо 2 шт.&#10;Мука 3 ст. л.&#10;Для соуса:&#10;Сметана 200 г"></textarea>
+    <div class="hint">Строка с двоеточием на конце («Для теста:») станет подзаголовком.</div>
+
+    <label class="f" for="eSteps">Приготовление <span class="muted" style="font-weight:400">— каждый шаг с новой строки</span></label>
+    <textarea class="inp" id="eSteps" rows="8" placeholder="Творог протереть через сито.&#10;Добавить яйцо и муку, перемешать…"></textarea>
+
+    <label class="f" for="eTags">Метки <span class="muted" style="font-weight:400">— через запятую</span></label>
+    <input class="inp" id="eTags" placeholder="бабушкины, постное, на праздник">
+
+    <label class="f" for="eNotes">Заметки</label>
+    <textarea class="inp" id="eNotes" rows="3" style="min-height:70px" placeholder="Советы, откуда рецепт, чем подавать…"></textarea>
+
+    <details class="box" id="rawBox">
+      <summary>Распознанный текст (исходник)</summary>
+      <div class="in">
+        <div class="hint" style="margin:0 0 8px">Здесь хранится текст как он есть. Можно вставить сюда текст рецепта вручную (например, из сообщения) и разложить его по разделам.</div>
+        <textarea class="inp" id="eRaw" rows="8"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn small soft" id="btnParse">Разложить по разделам</button>
+          <button class="btn small soft" id="btnParseAi">Разложить с помощью ИИ</button>
+        </div>
+      </div>
+    </details>
+    <div class="row" style="margin-top:22px">
+      <button class="btn primary grow" id="eSave2">Сохранить рецепт</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========== АРХИВ ========== -->
+<section id="v-archive" class="view hidden">
+  <header class="top"><div class="wrap"><div class="top-row"><h1 class="head-font">Архив</h1></div></div></header>
+  <div class="wrap" id="archiveBody"></div>
+</section>
+
+<!-- ========== НАСТРОЙКИ ========== -->
+<section id="v-settings" class="view hidden">
+  <header class="top"><div class="wrap"><div class="top-row"><h1 class="head-font">Настройки</h1></div></div></header>
+  <div class="wrap" id="settingsBody"></div>
+</section>
+
+<nav class="bottom" id="nav">
+  <button data-nav="list" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6"/></svg>Рецепты</button>
+  <button data-nav="add" class="add-main"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></span><span style="color:var(--muted)">Добавить</span></button>
+  <button data-nav="archive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/></svg>Архив</button>
+  <button data-nav="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Настройки</button>
+</nav>
+
+<div id="cook" class="hidden"></div>
+<div id="imgView" class="hidden"><button class="icon-btn close" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button><img alt=""></div>
+<div id="toast"></div>
+<input type="file" id="fImport" accept=".json,application/json" class="hidden">
+<div id="printArea"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   «Мои рецепты» — © 2026 Elena Kirsanova. Все права защищены.
+   Копирование, распространение и продажа без письменного разрешения
+   правообладателя запрещены.
+   ===================================================================== */
+const APP_VERSION = '1.0.0';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const ICON = {
+  star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
+  starO: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
+  rotL: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>',
+  rotR: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>',
+  del: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+  left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  scan: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
+};
+
+/* ---------------------- Настройки ---------------------- */
+const DEFAULT_CATS = ['Супы','Салаты','Закуски','Вторые блюда','Гарниры','Выпечка','Десерты','Соусы','Заготовки','Напитки','Другое'];
+const THEMES = [
+  {id:'auto', name:'Как в системе', sw:['#f7f3ec','#9a6b4b','#1c1d1f']},
+  {id:'cream', name:'Сливки', sw:['#f7f3ec','#fffdf9','#9a6b4b']},
+  {id:'sage', name:'Шалфей', sw:['#eef2ec','#fbfcfa','#5f7d61']},
+  {id:'lavender', name:'Лаванда', sw:['#f2f0f6','#fdfcff','#7a6a9a']},
+  {id:'sepia', name:'Сепия', sw:['#efe6d6','#f8f1e4','#8b5e34']},
+  {id:'graphite', name:'Графит', sw:['#1c1d1f','#26282b','#c9a27e']},
+  {id:'night', name:'Ночь', sw:['#121822','#1b2330','#8fb3d9']},
+];
+const FONTS = [
+  {id:'system', name:'Системный', css:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'},
+  {id:'ptsans', name:'PT Sans', g:'PT+Sans:wght@400;700', css:'"PT Sans",sans-serif'},
+  {id:'montserrat', name:'Montserrat', g:'Montserrat:wght@400;600', css:'"Montserrat",sans-serif'},
+  {id:'ptserif', name:'PT Serif', g:'PT+Serif:wght@400;700', css:'"PT Serif",Georgia,serif'},
+  {id:'lora', name:'Lora', g:'Lora:wght@400;600', css:'"Lora",Georgia,serif'},
+  {id:'cormorant', name:'Cormorant', g:'Cormorant+Garamond:wght@500;700', css:'"Cormorant Garamond",Georgia,serif'},
+  {id:'robotoslab', name:'Roboto Slab', g:'Roboto+Slab:wght@400;600', css:'"Roboto Slab",Georgia,serif'},
+  {id:'caveat', name:'Caveat (рукописный)', g:'Caveat:wght@400;600', css:'"Caveat",cursive'},
+  {id:'marck', name:'Marck Script (каллиграфия)', g:'Marck+Script', css:'"Marck Script",cursive'},
+];
+const DEF_SETTINGS = {
+  theme:'cream', fontBody:'system', fontHead:'lora', fontSize:17,
+  engine:'gemini', geminiKey:'', geminiModel:'gemini-flash-latest', claudeKey:'', claudeModel:'claude-sonnet-5-5',
+  keepScans:true, enhance:true, searchSteps:false, cats:DEFAULT_CATS.slice(),
+  autoSnap:true, snapKeep:20,
+};
+let S = loadSettings();
+function loadSettings(){
+  try { return Object.assign({}, DEF_SETTINGS, JSON.parse(localStorage.getItem('rc.settings') || '{}')); }
+  catch { return Object.assign({}, DEF_SETTINGS); }
+}
+function saveSettings(){ localStorage.setItem('rc.settings', JSON.stringify(S)); }
+
+function applyTheme(){
+  let t = S.theme;
+  if (t === 'auto') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'graphite' : 'cream';
+  document.body.dataset.theme = t;
+  const bg = getComputedStyle(document.body).getPropertyValue('--bg').trim();
+  $('meta[name=theme-color]').setAttribute('content', bg || '#f7f3ec');
+}
+function applyFonts(){
+  const fb = FONTS.find(f => f.id === S.fontBody) || FONTS[0];
+  const fh = FONTS.find(f => f.id === S.fontHead) || FONTS[0];
+  const fams = [...new Set([fb, fh].filter(f => f.g).map(f => f.g))];
+  $('#fontLink').href = fams.length ? 'https://fonts.googleapis.com/css2?' + fams.map(g => 'family=' + g).join('&') + '&display=swap&subset=cyrillic' : '';
+  const r = document.documentElement.style;
+  r.setProperty('--font-body', fb.css);
+  r.setProperty('--font-head', fh.css);
+  // рукописные шрифты визуально мельче — немного увеличим
+  const bump = (fb.id === 'caveat' || fb.id === 'marck') ? 3 : 0;
+  r.setProperty('--fs', (S.fontSize + bump) + 'px');
+}
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => S.theme === 'auto' && applyTheme());
+
+/* ---------------------- База данных (IndexedDB) ---------------------- */
+const DB = {
+  db: null,
+  open(){
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('moi-recepty', 1);
+      r.onupgradeneeded = () => {
+        const db = r.result;
+        if (!db.objectStoreNames.contains('recipes')) db.createObjectStore('recipes', {keyPath:'id'});
+        if (!db.objectStoreNames.contains('scans')) db.createObjectStore('scans', {keyPath:'id'});
+        if (!db.objectStoreNames.contains('snapshots')) db.createObjectStore('snapshots', {keyPath:'id'});
+      };
+      r.onsuccess = () => { this.db = r.result; res(); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  req(store, mode, fn){
+    return new Promise((res, rej) => {
+      const tx = this.db.transaction(store, mode);
+      const q = fn(tx.objectStore(store));
+      tx.oncomplete = () => res(q && q.result);
+      tx.onerror = () => rej(tx.error);
+      tx.onabort = () => rej(tx.error || new Error('Транзакция прервана'));
+    });
+  },
+  all(s){ return this.req(s, 'readonly', o => o.getAll()); },
+  get(s, id){ return this.req(s, 'readonly', o => o.get(id)); },
+  put(s, v){ return this.req(s, 'readwrite', o => o.put(v)); },
+  del(s, id){ return this.req(s, 'readwrite', o => o.delete(id)); },
+  clear(s){ return this.req(s, 'readwrite', o => o.clear()); },
+  bulk(s, arr, clearFirst){ return this.req(s, 'readwrite', o => { if (clearFirst) o.clear(); arr.forEach(v => o.put(v)); }); },
+};
+
+let RECIPES = [];
+async function loadRecipes(){ RECIPES = (await DB.all('recipes')) || []; buildIndex(); }
+async function saveRecipe(r){
+  r.updated = Date.now();
+  await DB.put('recipes', r);
+  const i = RECIPES.findIndex(x => x.id === r.id);
+  if (i >= 0) RECIPES[i] = r; else RECIPES.push(r);
+  indexOne(r);
+  localStorage.setItem('rc.dirty', '1');
+  requestPersist();
+}
+async function deleteRecipe(id){
+  await DB.del('recipes', id); await DB.del('scans', id);
+  RECIPES = RECIPES.filter(r => r.id !== id);
+  localStorage.setItem('rc.dirty', '1');
+}
+let persistAsked = false;
+function requestPersist(){
+  if (persistAsked) return; persistAsked = true;
+  navigator.storage?.persist?.().catch(() => {});
+}
+
+/* ---------------------- Поиск ---------------------- */
+const norm = s => (s || '').toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]+/g, ' ').trim();
+const ENDINGS = ['иями','ями','ами','ого','его','ому','ему','ыми','ими','ией','ках','ков','ок','ой','ей','ий','ый','ая','яя','ое','ее','ые','ие','ом','ем','ам','ям','ах','ях','ов','ев','ью','ка','а','я','ы','и','у','ю','е','о','ь','й'];
+function stem(w){
+  if (w.length <= 3) return w;
+  for (const e of ENDINGS) if (w.endsWith(e) && w.length - e.length >= 3) return w.slice(0, -e.length);
+  return w;
+}
+const IDX = new Map();
+function indexOne(r){
+  IDX.set(r.id, {
+    t: ' ' + norm(r.title) + ' ',
+    i: (r.ingredients || []).map(x => ' ' + norm(x) + ' '),
+    g: ' ' + norm((r.tags || []).join(' ') + ' ' + (r.category || '')) + ' ',
+    s: ' ' + norm((r.steps || []).join(' ') + ' ' + (r.notes || '')) + ' ',
+  });
+}
+function buildIndex(){ IDX.clear(); RECIPES.forEach(indexOne); }
+
+const UI = { q:'', scope:'all', cat:'', fav:false, sort:'rel' };
+function search(){
+  const tokens = [...new Set(norm(UI.q).split(' ').filter(Boolean))].map(w => ({w, s: stem(w)}));
+  const out = [];
+  for (const r of RECIPES){
+    if (UI.fav && !r.favorite) continue;
+    if (UI.cat && (r.category || 'Без раздела') !== UI.cat) continue;
+    const ix = IDX.get(r.id);
+    let score = 0, hitIng = [], ok = true, matched = 0;
+    for (const {s} of tokens){
+      let hit = 0;
+      const needle = ' ' + s;            // совпадение с началом слова
+      if (UI.scope !== 'ing' && ix.t.includes(needle)) hit += 10;
+      if (UI.scope !== 'title'){
+        ix.i.forEach((line, k) => { if (line.includes(needle)){ hit += 5; if (!hitIng.includes(k)) hitIng.push(k); } });
+      }
+      if (UI.scope === 'all'){
+        if (ix.g.includes(needle)) hit += 6;
+        if (S.searchSteps && ix.s.includes(needle)) hit += 1;
+      }
+      if (hit){ matched++; score += hit; }
+      else if (UI.scope !== 'any') { ok = false; break; }
+    }
+    if (UI.scope === 'any' && tokens.length && !matched) ok = false;
+    if (!ok) continue;
+    out.push({r, score, hitIng, matched, total: tokens.length});
+  }
+  const byTitle = (a, b) => (a.r.title || '').localeCompare(b.r.title || '', 'ru');
+  const sorts = {
+    rel: (a, b) => (b.matched - a.matched) || (b.score - a.score) || byTitle(a, b),
+    az: byTitle,
+    new: (a, b) => (b.r.created || 0) - (a.r.created || 0),
+    upd: (a, b) => (b.r.updated || 0) - (a.r.updated || 0),
+  };
+  out.sort(UI.sort === 'rel' && !tokens.length ? byTitle : sorts[UI.sort]);
+  return {out, tokens};
+}
+function highlight(text, tokens){
+  let h = esc(text);
+  if (!tokens.length) return h;
+  // подсветка по основе слова с учётом ё/е
+  for (const {s} of tokens){
+    const pat = s.replace(/е/g, '[её]');
+    try { h = h.replace(new RegExp('(^|[^а-яёa-z0-9])(' + pat + '[а-яёa-z0-9]*)', 'gi'), '$1<mark>$2</mark>'); } catch {}
+  }
+  return h;
+}
+
+/* ---------------------- Роутинг ---------------------- */
+let current = {view:'list'};
+let editorDirty = false;
+function go(hash, replace){ if (replace) history.replaceState(null, '', hash); else location.hash = hash; if (replace) route(); }
+window.addEventListener('hashchange', route);
+async function route(){
+  const h = location.hash.replace(/^#/, '') || 'list';
+  const [view, id] = h.split('/');
+  if (current.view === 'edit' && view !== 'edit' && editorDirty){
+    const ok = await ask('Выйти без сохранения?', 'Изменения в рецепте не сохранены.', [{t:'Остаться', v:false, cls:'primary'}, {t:'Выйти без сохранения', v:true, cls:'danger'}]);
+    if (!ok){ history.pushState(null, '', '#' + current.hash); return; }
+    editorDirty = false;
+  }
+  current = {view, id, hash: h};
+  $$('.view').forEach(v => v.classList.add('hidden'));
+  $('#v-' + (view === 'add' ? 'edit' : view))?.classList.remove('hidden');
+  $$('#nav button').forEach(b => b.classList.toggle('on', b.dataset.nav === (view === 'view' ? 'list' : view === 'edit' ? 'add' : view)));
+  window.scrollTo(0, 0);
+  if (view === 'list') renderList();
+  else if (view === 'view') renderView(id);
+  else if (view === 'edit' || view === 'add') openEditor(id);
+  else if (view === 'archive') renderArchive();
+  else if (view === 'settings') renderSettings();
+  else go('#list', true);
+}
+$$('[data-back]').forEach(b => b.onclick = () => history.length > 1 ? history.back() : go('#list'));
+$$('#nav button').forEach(b => b.onclick = () => {
+  const n = b.dataset.nav;
+  if (n === 'add'){ go('#edit/new-' + uid()); return; }
+  go('#' + n);
+});
+addEventListener('scroll', () => $$('header.top').forEach(h => h.classList.toggle('scrolled', scrollY > 4)), {passive:true});
+
+/* ---------------------- Список ---------------------- */
+function renderFilters(){
+  const scopes = [['all','Везде'],['title','В названии'],['ing','В ингредиентах'],['any','Любое из слов']];
+  $('#scopeBar').innerHTML = scopes.map(([v, t]) => `<button class="chip-btn ${UI.scope === v ? 'on' : ''}" data-scope="${v}">${t}</button>`).join('');
+  const cats = new Map();
+  RECIPES.forEach(r => { const c = r.category || 'Без раздела'; cats.set(c, (cats.get(c) || 0) + 1); });
+  const order = [...S.cats, 'Без раздела'];
+  const list = [...cats.keys()].sort((a, b) => {
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b, 'ru');
+  });
+  $('#catBar').innerHTML = `<button class="chip-btn ${!UI.cat ? 'on' : ''}" data-cat="">Все разделы</button>` +
+    list.map(c => `<button class="chip-btn ${UI.cat === c ? 'on' : ''}" data-cat="${esc(c)}">${esc(c)} · ${cats.get(c)}</button>`).join('');
+  $('#catBar').classList.toggle('hidden', list.length < 2 && !UI.cat);
+  $('#favToggle').innerHTML = UI.fav ? ICON.star : ICON.starO;
+  $('#favToggle').style.color = UI.fav ? 'var(--accent)' : '';
+}
+$('#scopeBar').onclick = e => { const b = e.target.closest('[data-scope]'); if (!b) return; UI.scope = b.dataset.scope; renderList(); };
+$('#catBar').onclick = e => { const b = e.target.closest('[data-cat]'); if (!b) return; UI.cat = b.dataset.cat; renderList(); };
+$('#favToggle').onclick = () => { UI.fav = !UI.fav; renderList(); };
+$('#sortSel').onchange = e => { UI.sort = e.target.value; renderList(); };
+let qTimer;
+$('#q').oninput = e => { UI.q = e.target.value; $('#qClear').classList.toggle('hidden', !UI.q); clearTimeout(qTimer); qTimer = setTimeout(renderList, 120); };
+$('#qClear').onclick = () => { UI.q = ''; $('#q').value = ''; $('#qClear').classList.add('hidden'); renderList(); $('#q').focus(); };
+
+function renderList(){
+  renderFilters();
+  renderBackupBanner();
+  const {out, tokens} = search();
+  const el = $('#list');
+  if (!RECIPES.length){
+    $('#countLbl').textContent = '';
+    el.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">📖</div>
+      <div class="head-font" style="font-size:1.2em;color:var(--text)">Кулинарная книга пока пуста</div>
+      <p>Сфотографируйте или загрузите скан рецепта — приложение распознает текст и само разложит его на название, ингредиенты и приготовление.</p>
+      <div class="row" style="justify-content:center"><button class="btn primary" onclick="go('#edit/new-'+uid())">Добавить первый рецепт</button>
+      <button class="btn" onclick="$('#fImport').click()">Загрузить архив</button></div></div>`;
+    return;
+  }
+  $('#countLbl').textContent = tokens.length || UI.cat || UI.fav ? `Найдено: ${out.length} из ${RECIPES.length}` : `Рецептов: ${RECIPES.length}`;
+  if (!out.length){
+    el.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">🔍</div>Ничего не найдено.<br><span class="small">Попробуйте режим «Любое из слов» или другое слово.</span></div>`;
+    return;
+  }
+  el.innerHTML = out.map(({r, hitIng, matched, total}) => {
+    let snip;
+    if (hitIng.length) snip = hitIng.slice(0, 4).map(k => highlight(r.ingredients[k], tokens)).join(' · ');
+    else snip = esc((r.ingredients || []).filter(x => !/:\s*$/.test(x)).slice(0, 5).join(' · '));
+    const meta = [
+      r.category ? `<span class="chip">${esc(r.category)}</span>` : '',
+      r.time ? `<span class="chip outline">${ICON.clock} ${esc(r.time)}</span>` : '',
+      r.hasScans ? `<span class="chip outline" title="Есть скан">${ICON.scan} скан</span>` : '',
+      UI.scope === 'any' && total > 1 ? `<span class="chip outline">совпало ${matched} из ${total}</span>` : '',
+    ].join('');
+    return `<div class="card r-card" data-id="${r.id}">
+      ${r.favorite ? `<span class="star">${ICON.star.replace('<svg', '<svg width="18" height="18"')}</span>` : ''}
+      <h3>${highlight(r.title || 'Без названия', tokens)}</h3>
+      ${meta ? `<div class="chips">${meta}</div>` : ''}
+      ${snip ? `<div class="snip">${snip}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+$('#list').onclick = e => { const c = e.target.closest('.r-card'); if (c) go('#view/' + c.dataset.id); };
+
+/* ---------------------- Просмотр рецепта ---------------------- */
+let viewScale = 1;
+async function renderView(id){
+  const r = RECIPES.find(x => x.id === id);
+  if (!r){ go('#list', true); return; }
+  viewScale = 1;
+  const scans = (await DB.get('scans', id))?.images || [];
+  $('#vFav').innerHTML = r.favorite ? ICON.star : ICON.starO;
+  $('#vFav').style.color = r.favorite ? 'var(--accent)' : '';
+  $('#vFav').onclick = async () => { r.favorite = !r.favorite; await saveRecipe(r); renderView(id); };
+  $('#vEdit').onclick = () => go('#edit/' + id);
+  $('#vMore').onclick = () => moreMenu(r);
+  const b = $('#viewBody');
+  b.innerHTML = `
+    <div class="v-head"><h1>${esc(r.title || 'Без названия')}</h1>
+      <div class="v-meta">
+        ${r.category ? `<span class="chip">${esc(r.category)}</span>` : ''}
+        ${r.servings ? `<span class="chip outline">🍽 ${esc(r.servings)} порц.</span>` : ''}
+        ${r.time ? `<span class="chip outline">${ICON.clock} ${esc(r.time)}</span>` : ''}
+        ${(r.tags || []).map(t => `<span class="chip outline">#${esc(t)}</span>`).join('')}
+      </div></div>
+    <div class="v-actions">
+      <button class="btn primary" id="vCook">👩‍🍳 Режим готовки</button>
+      <button class="btn" id="vShare">Поделиться</button>
+    </div>
+    ${r.ingredients?.length ? `<div class="card pad sect"><div class="row" style="justify-content:space-between;margin-bottom:6px"><h2 style="margin:0">Ингредиенты</h2>
+      <div class="scale"><span class="muted">Порции:</span><div class="seg" id="scaleSeg">${[0.5,1,1.5,2,3].map(k => `<button data-k="${k}" class="${k === 1 ? 'on' : ''}">×${String(k).replace('.', ',')}</button>`).join('')}</div></div></div>
+      <ul class="ing" id="ingList"></ul></div>` : ''}
+    ${r.steps?.length ? `<div class="card pad sect"><h2>Приготовление</h2><ol class="steps">${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>` : ''}
+    ${r.notes ? `<div class="card pad sect"><h2>Заметки</h2><div style="white-space:pre-wrap">${esc(r.notes)}</div></div>` : ''}
+    ${scans.length ? `<div class="sect"><h2>Оригинал${scans.length > 1 ? 'ы' : ''}</h2><div class="gallery">${scans.map((s, i) => `<img src="${s}" data-i="${i}" alt="Скан ${i + 1}">`).join('')}</div></div>` : ''}
+    ${r.rawText ? `<details class="box"><summary>Распознанный текст</summary><div class="in"><div class="raw">${esc(r.rawText)}</div></div></details>` : ''}
+    <p class="muted small" style="margin-top:18px">Добавлен ${fmtDate(r.created)}${r.updated && r.updated - r.created > 60000 ? ' · изменён ' + fmtDate(r.updated) : ''}</p>
+    <div style="height:20px"></div>`;
+  const renderIng = () => { const ul = $('#ingList'); if (ul) ul.innerHTML = ingHtml(r.ingredients, viewScale, false); };
+  renderIng();
+  $('#scaleSeg')?.addEventListener('click', e => {
+    const k = e.target.closest('[data-k]'); if (!k) return;
+    viewScale = +k.dataset.k; $$('#scaleSeg button').forEach(x => x.classList.toggle('on', x === k)); renderIng();
+  });
+  $$('.gallery img', b).forEach(img => img.onclick = () => showImage(img.src));
+  $('#vCook').onclick = () => openCook(r);
+  $('#vShare').onclick = () => shareRecipeText(r);
+}
+function ingHtml(list, k, cook){
+  return (list || []).map(line => {
+    if (/:\s*$/.test(line.trim())) return `<li class="sub">${esc(line)}</li>`;
+    return `<li>${cook ? '<span class="cb"></span>' : '<span class="dot"></span>'}<span>${esc(scaleLine(line, k))}</span></li>`;
+  }).join('');
+}
+function fmtDate(t){ return t ? new Date(t).toLocaleDateString('ru-RU', {day:'numeric', month:'long', year:'numeric'}) : ''; }
+
+/* масштабирование количеств */
+const FR = {'½':.5,'¼':.25,'¾':.75,'⅓':1/3,'⅔':2/3,'⅛':.125};
+function fmtNum(v){
+  if (Math.abs(v - Math.round(v)) < 0.03) return String(Math.round(v));
+  const fr = [[.25,'¼'],[.5,'½'],[.75,'¾'],[1/3,'⅓'],[2/3,'⅔']];
+  const whole = Math.floor(v), f = v - whole;
+  if (v < 10) for (const [x, s] of fr) if (Math.abs(f - x) < 0.04) return (whole ? whole + ' ' : '') + s;
+  return (v >= 10 ? Math.round(v) : Math.round(v * 10) / 10).toString().replace('.', ',');
+}
+function scaleLine(line, k){
+  if (k === 1) return line;
+  return line.replace(/(\d+\s+\d+\/\d+|\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?\s*[½¼¾⅓⅔⅛]?|[½¼¾⅓⅔⅛])(?![\d.,\/]|\s*(?:°|%|град|мм|см\b))/g, m => {
+    let v; const t = m.trim();
+    if (/^\d+\s+\d+\/\d+$/.test(t)){ const [w, f] = t.split(/\s+/); const [a, b] = f.split('/'); v = +w + a / b; }
+    else if (/\//.test(t)){ const [a, b] = t.split('/').map(Number); v = a / b; }
+    else if (FR[t]) v = FR[t];
+    else { const mm = t.match(/^(\d+(?:[.,]\d+)?)\s*([½¼¾⅓⅔⅛])?$/); if (!mm) return m; v = parseFloat(mm[1].replace(',', '.')) + (mm[2] ? FR[mm[2]] : 0); }
+    if (!isFinite(v)) return m;
+    return fmtNum(v * k) + (m.endsWith(' ') ? ' ' : '');
+  });
+}
+
+/* меню «ещё» */
+async function moreMenu(r){
+  const v = await ask(r.title || 'Рецепт', '', [
+    {t:'🖨 Печать / PDF', v:'print'},
+    {t:'📤 Отправить рецепт файлом (для другого телефона)', v:'file'},
+    {t:'📋 Скопировать текст', v:'copy'},
+    {t:'⧉ Сделать копию рецепта', v:'dup'},
+    {t:'🗑 Удалить рецепт', v:'del', cls:'danger'},
+    {t:'Отмена', v:null},
+  ]);
+  if (v === 'print') printRecipes([r]);
+  if (v === 'file') shareRecipeFile(r);
+  if (v === 'copy'){ await copyText(recipeToText(r)); toast('Текст рецепта скопирован'); }
+  if (v === 'dup'){
+    const copy = JSON.parse(JSON.stringify(r)); copy.id = uid(); copy.title = (r.title || '') + ' (копия)'; copy.created = Date.now();
+    const sc = await DB.get('scans', r.id); if (sc) await DB.put('scans', {id: copy.id, images: sc.images});
+    await saveRecipe(copy); toast('Копия создана'); go('#view/' + copy.id);
+  }
+  if (v === 'del'){
+    const ok = await ask('Удалить рецепт?', `«${r.title}» будет удалён. Его можно будет вернуть из архивной копии.`, [{t:'Удалить', v:true, cls:'danger'}, {t:'Отмена', v:false}]);
+    if (ok){ await makeSnapshot('Перед удалением «' + (r.title || '') + '»', true); await deleteRecipe(r.id); toast('Рецепт удалён'); go('#list', true); }
+  }
+}
+function recipeToText(r){
+  let t = (r.title || 'Рецепт') + '\n';
+  const meta = [r.category, r.servings && r.servings + ' порц.', r.time].filter(Boolean).join(' · ');
+  if (meta) t += meta + '\n';
+  if (r.ingredients?.length) t += '\nИНГРЕДИЕНТЫ:\n' + r.ingredients.map(x => /:\s*$/.test(x) ? '\n' + x : '• ' + x).join('\n') + '\n';
+  if (r.steps?.length) t += '\nПРИГОТОВЛЕНИЕ:\n' + r.steps.map((s, i) => (i + 1) + '. ' + s).join('\n') + '\n';
+  if (r.notes) t += '\nЗАМЕТКИ:\n' + r.notes + '\n';
+  return t + '\n— из приложения «Мои рецепты»';
+}
+async function shareRecipeText(r){
+  const text = recipeToText(r);
+  if (navigator.share){ try { await navigator.share({title: r.title, text}); return; } catch (e){ if (e.name === 'AbortError') return; } }
+  await copyText(text); toast('Текст скопирован — вставьте его в мессенджер');
+}
+async function shareRecipeFile(r){
+  const sc = await DB.get('scans', r.id);
+  const data = {app:'moi-recepty', kind:'recipes', version:APP_VERSION, exported:new Date().toISOString(), recipes:[r], scans: sc ? [sc] : []};
+  await shareOrDownload(JSON.stringify(data), safeName(r.title || 'рецепт') + '.recipe.json', 'Рецепт: ' + r.title);
+}
+async function copyText(t){
+  try { await navigator.clipboard.writeText(t); }
+  catch { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+}
+
+/* ---------------------- Режим готовки ---------------------- */
+let wakeLock = null;
+async function openCook(r){
+  const c = $('#cook');
+  c.innerHTML = `<div class="wrap">
+    <div class="top-row" style="margin-bottom:10px"><button class="icon-btn" id="cookClose" aria-label="Закрыть">${ICON.left}</button>
+    <h1 style="font-size:1.25em" class="grow">${esc(r.title)}</h1></div>
+    <p class="muted small" style="margin-top:0">Экран не будет гаснуть. Нажимайте на ингредиенты и шаги, чтобы отмечать готовое.</p>
+    ${r.ingredients?.length ? `<div class="card pad sect"><h2>Ингредиенты</h2><ul class="ing">${ingHtml(r.ingredients, viewScale, true)}</ul></div>` : ''}
+    ${r.steps?.length ? `<div class="card pad sect"><h2>Приготовление</h2><ol class="steps">${r.steps.map((s, i) => `<li class="${i === 0 ? 'cur' : ''}">${esc(s)}</li>`).join('')}</ol></div>` : ''}
+  </div>`;
+  c.classList.remove('hidden'); document.body.style.overflow = 'hidden';
+  c.querySelectorAll('ul.ing li:not(.sub)').forEach(li => li.onclick = () => li.classList.toggle('done'));
+  const steps = c.querySelectorAll('ol.steps li');
+  steps.forEach(li => li.onclick = () => {
+    li.classList.toggle('done');
+    steps.forEach(x => x.classList.remove('cur'));
+    const next = [...steps].find(x => !x.classList.contains('done')); next?.classList.add('cur');
+  });
+  $('#cookClose').onclick = closeCook;
+  try { wakeLock = await navigator.wakeLock?.request('screen'); } catch {}
+}
+function closeCook(){ $('#cook').classList.add('hidden'); document.body.style.overflow = ''; try { wakeLock?.release(); } catch {} wakeLock = null; }
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && !$('#cook').classList.contains('hidden')){ try { wakeLock = await navigator.wakeLock?.request('screen'); } catch {} }
+});
+
+/* ---------------------- Редактор ---------------------- */
+let editing = null;   // {id, isNew, created, favorite}
+let scanItems = [];   // dataURL[]
+async function openEditor(id){
+  const isNew = !id || id.startsWith('new-');
+  const r = isNew ? null : RECIPES.find(x => x.id === id);
+  if (!isNew && !r){ go('#list', true); return; }
+  editing = {routeId:id, id: r ? r.id : uid(), isNew, created: r?.created || Date.now(), favorite: !!r?.favorite};
+  $('#eTitle').textContent = isNew ? 'Новый рецепт' : 'Редактирование';
+  $('#eName').value = r?.title || '';
+  $('#eCat').value = r?.category || '';
+  $('#eServ').value = r?.servings || '';
+  $('#eTime').value = r?.time || '';
+  $('#eIng').value = (r?.ingredients || []).join('\n');
+  $('#eSteps').value = (r?.steps || []).join('\n');
+  $('#eTags').value = (r?.tags || []).join(', ');
+  $('#eNotes').value = r?.notes || '';
+  $('#eRaw').value = r?.rawText || '';
+  $('#rawBox').open = false;
+  $('#catList').innerHTML = S.cats.map(c => `<option value="${esc(c)}">`).join('');
+  scanItems = r ? ((await DB.get('scans', r.id))?.images || []).slice() : [];
+  $('#ocrEngine').value = S.engine;
+  renderThumbs(); updateOcrHint();
+  editorDirty = false;
+  autoGrow();
+}
+['eName','eCat','eServ','eTime','eIng','eSteps','eTags','eNotes','eRaw'].forEach(id => $('#' + id).addEventListener('input', () => { editorDirty = true; }));
+function autoGrow(){ ['eIng','eSteps'].forEach(id => { const t = $('#' + id); t.style.height = 'auto'; t.style.height = Math.max(150, t.scrollHeight + 4) + 'px'; }); }
+['eIng','eSteps'].forEach(id => $('#' + id).addEventListener('input', autoGrow));
+
+const lines = s => s.split('\n').map(x => x.replace(/\s+/g, ' ').trim()).filter(Boolean);
+async function saveEditor(){
+  const title = $('#eName').value.trim();
+  const ing = lines($('#eIng').value), steps = lines($('#eSteps').value);
+  if (!title && !ing.length && !steps.length && !scanItems.length){ toast('Рецепт пустой — нечего сохранять'); return; }
+  const r = {
+    id: editing.id, title: title || 'Без названия', category: $('#eCat').value.trim(),
+    servings: $('#eServ').value.trim(), time: $('#eTime').value.trim(),
+    ingredients: ing, steps, tags: $('#eTags').value.split(',').map(x => x.trim().replace(/^#/, '')).filter(Boolean),
+    notes: $('#eNotes').value.trim(), rawText: $('#eRaw').value.trim(),
+    favorite: editing.favorite, created: editing.created, hasScans: !!(scanItems.length && S.keepScans),
+  };
+  if (r.category && !S.cats.includes(r.category)){ S.cats.push(r.category); saveSettings(); }
+  await saveRecipe(r);
+  if (S.keepScans && scanItems.length) await DB.put('scans', {id: r.id, images: scanItems});
+  else await DB.del('scans', r.id);
+  editorDirty = false; editing = null;
+  toast('Рецепт сохранён');
+  go('#view/' + r.id, true);
+}
+$('#eSave').onclick = saveEditor; $('#eSave2').onclick = saveEditor;
+
+/* сканы */
+$('#btnCam').onclick = () => $('#fCam').click();
+$('#btnFiles').onclick = () => $('#fFiles').click();
+$('#fCam').onchange = e => addFiles(e.target.files);
+$('#fFiles').onchange = e => addFiles(e.target.files);
+const zone = $('#scanZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); addFiles(e.dataTransfer.files); });
+document.addEventListener('paste', e => {
+  if (current.view !== 'edit') return;
+  const files = [...(e.clipboardData?.files || [])].filter(f => f.type.startsWith('image/'));
+  if (files.length){ e.preventDefault(); addFiles(files); }
+});
+
+async function addFiles(fl){
+  const files = [...fl].filter(f => f.type.startsWith('image/') || /\.(jpe?g|png|webp|heic|heif)$/i.test(f.name));
+  if (!files.length) return;
+  busy('Подготавливаю изображения…');
+  try {
+    for (const f of files){
+      const img = await loadImage(f);
+      scanItems.push(canvasToJpeg(drawImg(img, 2000, 0), .85));
+    }
+    editorDirty = true;
+  } catch (e){ toast('Не удалось открыть изображение: ' + e.message); }
+  busy(false);
+  $('#fCam').value = ''; $('#fFiles').value = '';
+  renderThumbs();
+}
+function loadImage(src){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    const url = src instanceof Blob ? URL.createObjectURL(src) : src;
+    img.onload = () => { res(img); if (src instanceof Blob) setTimeout(() => URL.revokeObjectURL(url), 1000); };
+    img.onerror = () => rej(new Error('формат не поддерживается'));
+    img.src = url;
+  });
+}
+function drawImg(img, maxSide, rot){
+  const w0 = img.naturalWidth || img.width, h0 = img.naturalHeight || img.height;
+  const k = Math.min(1, maxSide / Math.max(w0, h0));
+  const w = Math.round(w0 * k), h = Math.round(h0 * k);
+  const c = document.createElement('canvas');
+  const sw = rot % 180 ? h : w, sh = rot % 180 ? w : h;
+  c.width = sw; c.height = sh;
+  const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, sw, sh);
+  x.translate(sw / 2, sh / 2); x.rotate(rot * Math.PI / 180);
+  x.drawImage(img, -w / 2, -h / 2, w, h);
+  return c;
+}
+const canvasToJpeg = (c, q) => c.toDataURL('image/jpeg', q);
+function renderThumbs(){
+  $('#thumbs').innerHTML = scanItems.map((s, i) => `<div class="thumb"><span class="num">${i + 1}</span><img src="${s}" data-i="${i}" alt="">
+    <div class="tb"><button data-a="l" data-i="${i}" title="Повернуть влево">${ICON.rotL}</button><button data-a="r" data-i="${i}" title="Повернуть вправо">${ICON.rotR}</button><button data-a="d" data-i="${i}" title="Убрать">${ICON.del}</button></div></div>`).join('');
+  $('#ocrBar').classList.toggle('hidden', !scanItems.length);
+  $('#thumbs').classList.toggle('hidden', !scanItems.length);
+}
+$('#thumbs').onclick = async e => {
+  const img = e.target.closest('img'); if (img){ showImage(img.src); return; }
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  const i = +b.dataset.i;
+  if (b.dataset.a === 'd'){ scanItems.splice(i, 1); }
+  else { const im = await loadImage(scanItems[i]); scanItems[i] = canvasToJpeg(drawImg(im, 2000, b.dataset.a === 'l' ? -90 : 90), .88); }
+  editorDirty = true; renderThumbs();
+};
+$('#ocrEngine').onchange = e => { S.engine = e.target.value; saveSettings(); updateOcrHint(); };
+function updateOcrHint(){
+  const e = $('#ocrEngine').value;
+  const h = {
+    gemini: S.geminiKey ? 'Gemini хорошо читает рукописный русский текст и сам раскладывает его по разделам.' : '⚠️ Нужен ключ Gemini — добавьте его в «Настройки → Распознавание» (бесплатно).',
+    claude: S.claudeKey ? 'Claude очень точно читает рукописный текст и сам раскладывает его по разделам.' : '⚠️ Нужен ключ Claude — добавьте его в «Настройки → Распознавание».',
+    tess: 'Работает без интернета-ИИ и бесплатно, но рукописный текст читает плохо — подходит для печатных книг и распечаток. Первый запуск скачивает словари (~15 МБ).',
+  }[e];
+  $('#ocrHint').textContent = h;
+}
+$('#btnOcr').onclick = runOcr;
+
+/* ---------------------- Распознавание ---------------------- */
+const AI_RULES = () => `Правила:
+- Переписывай текст максимально близко к оригиналу. Ничего не придумывай и не добавляй от себя.
+- Исправляй только явные ошибки чтения. Сокращения (ст. л., ч. л., г, гр., стак., шт.) оставляй как в оригинале.
+- Если слово не читается — напиши лучший вариант со знаком (?) или [неразборчиво].
+- ingredients: каждый ингредиент отдельной строкой вместе с количеством, как написано. Подзаголовки вроде «Для теста:» — отдельной строкой с двоеточием на конце.
+- steps: шаги приготовления по порядку, каждый отдельной строкой, без номеров в начале. Если текст сплошной — раздели его на логичные шаги, не меняя слов.
+- notes: советы, примечания, подписи (например, «от бабушки Нины»), если есть.
+- title: название рецепта. Если названия нет — придумай короткое по смыслу и добавь в notes пометку «название добавлено при распознавании».
+- category: одно из [${S.cats.join(', ')}] или пустая строка.
+- servings: число порций, если указано; time: время приготовления, если указано.
+- Если в тексте несколько разных рецептов — верни каждый отдельным объектом.
+Ответь ТОЛЬКО валидным JSON без markdown и без пояснений, строго в формате:
+{"recipes":[{"title":"","category":"","servings":"","time":"","ingredients":[""],"steps":[""],"notes":"","raw_text":""}]}
+В raw_text положи весь прочитанный текст как есть, с переносами строк.`;
+const AI_PROMPT_IMG = () => `Перед тобой скан(ы) или фото страниц с кулинарным рецептом — часто рукописным, на русском языке (возможен старый почерк, тетрадь, карточка). Страницы идут по порядку и образуют один текст. Внимательно прочитай ВЕСЬ текст и разложи рецепт по разделам.\n` + AI_RULES();
+const AI_PROMPT_TXT = t => `Ниже текст кулинарного рецепта (возможно, с ошибками распознавания). Разложи его по разделам.\n` + AI_RULES() + `\n\nТЕКСТ:\n"""\n${t}\n"""`;
+
+async function runOcr(){
+  if (!scanItems.length){ toast('Сначала добавьте сканы'); return; }
+  const engine = $('#ocrEngine').value;
+  const hasData = $('#eName').value.trim() || $('#eIng').value.trim() || $('#eSteps').value.trim();
+  if (hasData){
+    const ok = await ask('Заполнить заново?', 'Поля рецепта уже заполнены. Распознанный текст заменит их содержимое.', [{t:'Заменить', v:true, cls:'primary'}, {t:'Отмена', v:false}]);
+    if (!ok) return;
+  }
+  try {
+    if (engine === 'tess'){
+      const text = await tesseractOcr(scanItems);
+      $('#eRaw').value = text;
+      fillFromParsed(parseRecipeText(text), text);
+      toast('Готово. Проверьте разделы — печатный текст распознан офлайн');
+    } else {
+      busy('Распознаю почерк с помощью ИИ…', 'Обычно это занимает 10–40 секунд');
+      const imgs = [];
+      for (const s of scanItems) imgs.push(await prepForAi(s));
+      const res = await aiCall(engine, AI_PROMPT_IMG(), imgs);
+      await applyAiResult(res);
+    }
+  } catch (e){
+    console.error(e);
+    busy(false);
+    await ask('Не получилось распознать', esc(e.message || String(e)), [{t:'Понятно', v:true, cls:'primary'}]);
+    return;
+  }
+  busy(false);
+}
+async function prepForAi(dataUrl){
+  const im = await loadImage(dataUrl);
+  let c = drawImg(im, 1800, 0);
+  return canvasToJpeg(c, .85).split(',')[1];
+}
+async function applyAiResult(obj){
+  let list = Array.isArray(obj?.recipes) ? obj.recipes : (obj && (obj.title || obj.ingredients) ? [obj] : []);
+  list = list.map(cleanAiRecipe).filter(x => x.title || x.ingredients.length || x.steps.length);
+  if (!list.length) throw new Error('ИИ не нашёл рецепт на изображении. Проверьте, что скан чёткий и правильно повёрнут.');
+  const [first, ...rest] = list;
+  const raw = list.map(x => x.raw_text).filter(Boolean).join('\n\n———\n\n');
+  if (raw) $('#eRaw').value = raw;
+  fillFromParsed(first, null);
+  if (rest.length){
+    for (const x of rest){
+      const r = {id: uid(), title: x.title || 'Без названия', category: x.category, servings: x.servings, time: x.time,
+        ingredients: x.ingredients, steps: x.steps, notes: x.notes, rawText: x.raw_text, tags: [], favorite:false,
+        created: Date.now(), hasScans: !!(S.keepScans && scanItems.length)};
+      await saveRecipe(r);
+      if (S.keepScans && scanItems.length) await DB.put('scans', {id: r.id, images: scanItems.slice()});
+    }
+    busy(false);
+    await ask('Найдено несколько рецептов', `На сканах ${list.length} рецепта. Первый открыт для проверки, остальные (${rest.map(x => '«' + esc(x.title) + '»').join(', ')}) уже сохранены отдельно — их можно найти в списке.`, [{t:'Хорошо', v:true, cls:'primary'}]);
+  } else toast('Готово! Проверьте текст — ИИ может ошибаться в неразборчивых словах');
+}
+function cleanAiRecipe(x){
+  const arr = v => (Array.isArray(v) ? v : String(v || '').split('\n')).map(s => String(s).trim()).filter(Boolean);
+  return {
+    title: String(x.title || '').trim(), category: String(x.category || '').trim(),
+    servings: String(x.servings ?? '').trim(), time: String(x.time || '').trim(),
+    ingredients: arr(x.ingredients).map(s => s.replace(/^[-–—•*]\s*/, '')),
+    steps: arr(x.steps).map(s => s.replace(/^\s*(\d{1,2}[.)]|шаг\s*\d+[.:)]?)\s*/i, '')),
+    notes: String(x.notes || '').trim(), raw_text: String(x.raw_text || '').trim(),
+  };
+}
+function fillFromParsed(p, raw){
+  $('#eName').value = p.title || $('#eName').value;
+  if (p.category) $('#eCat').value = p.category;
+  if (p.servings) $('#eServ').value = p.servings;
+  if (p.time) $('#eTime').value = p.time;
+  $('#eIng').value = (p.ingredients || []).join('\n');
+  $('#eSteps').value = (p.steps || []).join('\n');
+  if (p.notes) $('#eNotes').value = p.notes;
+  editorDirty = true; autoGrow();
+  $('#eName').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+async function aiCall(engine, prompt, imagesB64 = []){
+  if (!navigator.onLine) throw new Error('Нет подключения к интернету. Для распознавания ИИ нужен интернет; без него можно использовать режим «Офлайн (печатный текст)».');
+  if (engine === 'gemini'){
+    if (!S.geminiKey) throw new Error('Не указан ключ Gemini. Откройте «Настройки → Распознавание».');
+    const model = (S.geminiModel || 'gemini-flash-latest').replace(/^models\//, '');
+    const parts = imagesB64.map(d => ({inline_data:{mime_type:'image/jpeg', data:d}}));
+    parts.push({text: prompt});
+    const resp = await fetchT(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method:'POST', headers:{'Content-Type':'application/json', 'x-goog-api-key': S.geminiKey},
+      body: JSON.stringify({contents:[{role:'user', parts}], generationConfig:{temperature:0.1, responseMimeType:'application/json'}}),
+    });
+    const j = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(apiErr('Gemini', resp.status, j?.error?.message));
+    const txt = (j.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
+    if (!txt) throw new Error('Gemini вернул пустой ответ' + (j.promptFeedback?.blockReason ? ' (' + j.promptFeedback.blockReason + ')' : '') + '.');
+    return parseJsonLoose(txt);
+  }
+  if (engine === 'claude'){
+    if (!S.claudeKey) throw new Error('Не указан ключ Claude. Откройте «Настройки → Распознавание».');
+    const content = imagesB64.map(d => ({type:'image', source:{type:'base64', media_type:'image/jpeg', data:d}}));
+    content.push({type:'text', text: prompt});
+    const resp = await fetchT('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'content-type':'application/json', 'x-api-key': S.claudeKey, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model: S.claudeModel || 'claude-sonnet-5-5', max_tokens: 8000, temperature: 0.1, messages:[{role:'user', content}]}),
+    });
+    const j = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(apiErr('Claude', resp.status, j?.error?.message));
+    const txt = (j.content || []).filter(c => c.type === 'text').map(c => c.text).join('');
+    return parseJsonLoose(txt);
+  }
+  throw new Error('Неизвестный способ распознавания');
+}
+async function fetchT(url, opt, ms = 120000){
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), ms);
+  try { return await fetch(url, {...opt, signal: ctl.signal}); }
+  catch (e){
+    if (e.name === 'AbortError') throw new Error('Сервер долго не отвечает. Попробуйте ещё раз или уменьшите количество сканов.');
+    throw new Error('Не удалось связаться с сервером ИИ. Проверьте интернет. Если вы в России — сервисы Gemini и Claude могут быть недоступны без VPN.');
+  } finally { clearTimeout(t); }
+}
+function apiErr(name, st, msg){
+  const m = msg ? ' Подробности: ' + msg : '';
+  if (st === 400 && /api key|API_KEY/i.test(msg || '')) return `${name}: ключ недействителен. Проверьте его в настройках.` + m;
+  if (st === 401 || st === 403) return `${name}: доступ запрещён — ключ неверный или не активирован (также бывает при блокировке по региону).` + m;
+  if (st === 404) return `${name}: модель не найдена. В настройках нажмите «Проверить ключ» и выберите модель из списка.` + m;
+  if (st === 429) return `${name}: превышен лимит запросов. Подождите минуту и попробуйте снова.` + m;
+  if (st === 529 || st >= 500) return `${name}: сервис временно перегружен. Попробуйте чуть позже.` + m;
+  return `${name}: ошибка ${st}.` + m;
+}
+function parseJsonLoose(t){
+  t = String(t).replace(/```(?:json)?/gi, '').trim();
+  try { return JSON.parse(t); } catch {}
+  const a = t.indexOf('{'), b = t.lastIndexOf('}');
+  if (a >= 0 && b > a){ try { return JSON.parse(t.slice(a, b + 1)); } catch {} }
+  throw new Error('ИИ ответил не в том формате. Попробуйте ещё раз.');
+}
+
+/* офлайн-распознавание (Tesseract) */
+let tessLoaded = null;
+function loadTesseract(){
+  if (window.Tesseract) return Promise.resolve();
+  if (tessLoaded) return tessLoaded;
+  tessLoaded = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = res; s.onerror = () => { tessLoaded = null; rej(new Error('Не удалось загрузить модуль офлайн-распознавания. Для первого запуска нужен интернет.')); };
+    document.head.appendChild(s);
+  });
+  return tessLoaded;
+}
+async function tesseractOcr(items){
+  busy('Загружаю модуль распознавания…', 'Первый раз — около 15 МБ, потом работает быстрее', 0);
+  await loadTesseract();
+  let page = 0;
+  const worker = await Tesseract.createWorker('rus+eng', 1, {
+    logger: m => {
+      if (m.status === 'recognizing text') busy(`Распознаю страницу ${page + 1} из ${items.length}…`, '', (page + m.progress) / items.length);
+      else if (/load/i.test(m.status)) busy('Загружаю словари русского языка…', '', m.progress || 0);
+    },
+  });
+  const texts = [];
+  try {
+    for (page = 0; page < items.length; page++){
+      const im = await loadImage(items[page]);
+      let c = drawImg(im, 2400, 0);
+      if (S.enhance) enhanceCanvas(c);
+      const {data} = await worker.recognize(c);
+      texts.push(data.text.trim());
+    }
+  } finally { await worker.terminate(); }
+  busy(false);
+  return texts.join('\n\n');
+}
+function enhanceCanvas(c){
+  const x = c.getContext('2d'), d = x.getImageData(0, 0, c.width, c.height), p = d.data;
+  const hist = new Uint32Array(256);
+  for (let i = 0; i < p.length; i += 4){ const g = (p[i] * .299 + p[i + 1] * .587 + p[i + 2] * .114) | 0; p[i] = g; hist[g]++; }
+  const n = p.length / 4; let lo = 0, hi = 255, acc = 0;
+  for (let i = 0; i < 256; i++){ acc += hist[i]; if (acc > n * .01){ lo = i; break; } }
+  acc = 0; for (let i = 255; i >= 0; i--){ acc += hist[i]; if (acc > n * .05){ hi = i; break; } }
+  const k = 255 / Math.max(1, hi - lo);
+  for (let i = 0; i < p.length; i += 4){ const v = Math.max(0, Math.min(255, (p[i] - lo) * k)); p[i] = p[i + 1] = p[i + 2] = v; }
+  x.putImageData(d, 0, 0);
+}
+
+/* разбор текста по разделам — без ИИ */
+const RX = {
+  ing: /^(ингредиенты|ингридиенты|продукты|состав|нам понадобится|понадобится|потребуется|нужно взять|возьмите|что нужно|на \d+ порц)/i,
+  step: /^(приготовление|способ приготовления|как готовить|рецепт приготовления|готовим|процесс|инструкция|порядок приготовления|технология)/i,
+  notes: /^(примечани|совет|заметк|подача|хранение|p\.?\s*s)/i,
+  sub: /^(для [а-яё ]{2,30}|начинка|тесто|крем|соус|заливка|глазурь|маринад|бульон|фарш|пропитка)\s*:?\s*$/i,
+  qty: /(\d|½|¼|¾|⅓|⅔|пол[- ]?|полов|щепот|по вкусу|немного|горст)\s*[^,]{0,6}?(г\b|гр|кг|мл|л\b|литр|ст\.?\s*л|ч\.?\s*л|ст\.?\s*ложк|ч\.?\s*ложк|стак|шт|зуб|пуч|пачк|банк|ложк|кусоч|вкусу|щепот|упак|головк|ломт|веточ|кочан|лист)/i,
+  qtyStart: /^(\d+([.,]\d+)?|½|¼|¾)\s*(г|гр|кг|мл|л|ст|ч|шт|стак)/i,
+  serv: /(\d+)\s*(порц|персон)/i,
+  time: /(\d+\s*(?:-|–)?\s*\d*\s*(?:мин|час|ч\b)[а-я.]*)/i,
+};
+function parseRecipeText(text){
+  const raw = String(text || '').replace(/\r/g, '').split('\n').map(s => s.replace(/[|_~]+/g, ' ').replace(/\s+/g, ' ').trim());
+  const L = raw.filter(Boolean);
+  const out = {title:'', category:'', servings:'', time:'', ingredients:[], steps:[], notes:''};
+  if (!L.length) return out;
+  // заголовок — первая строка, не являющаяся заголовком раздела и не ингредиентом
+  let start = 0;
+  for (let i = 0; i < Math.min(L.length, 4); i++){
+    const s = L[i];
+    if (RX.ing.test(s) || RX.step.test(s)) break;
+    if (!RX.qty.test(s) && s.length <= 80){ out.title = s.replace(/^(рецепт|название)\s*[:.]?\s*/i, '').replace(/^[«"']|[»"'.:]$/g, '').trim(); start = i + 1; break; }
+  }
+  const body = L.slice(start);
+  const sv = text.match(RX.serv); if (sv) out.servings = sv[1];
+  let section = null, notes = [], ing = [], stepsRaw = [];
+  const hasHeaders = body.some(s => isHeader(s.match(RX.ing), s) || isHeader(s.match(RX.step), s));
+  for (let s of body){
+    const mI = s.match(RX.ing), mS = s.match(RX.step), mN = s.match(RX.notes);
+    const rest = s.includes(':') ? s.slice(s.indexOf(':') + 1).trim() : '';
+    if (isHeader(mI, s)){ section = 'ing'; if (rest) splitIngLine(rest).forEach(x => ing.push(x)); continue; }
+    if (isHeader(mS, s)){ section = 'step'; if (rest) stepsRaw.push(rest); continue; }
+    if (hasHeaders && isHeader(mN, s)){ section = 'notes'; if (rest) notes.push(rest); continue; }
+    if (!hasHeaders){
+      // без заголовков: короткие строки и строки с количествами — ингредиенты, дальше — приготовление
+      const looksIng = (RX.qty.test(s) && s.length < 70) || RX.sub.test(s) || (s.length < 35 && !/[.!?]$/.test(s));
+      section = section !== 'step' && looksIng ? 'ing' : 'step';
+    } else if (!section){
+      section = RX.qty.test(s) ? 'ing' : 'notes';
+    }
+    if (section === 'ing'){
+      if (RX.sub.test(s)) ing.push(s.replace(/\s*:?\s*$/, ':'));
+      else splitIngLine(s).forEach(x => ing.push(x));
+    } else if (section === 'notes') notes.push(s);
+    else stepsRaw.push(s);
+  }
+  out.ingredients = mergeIngLines(ing);
+  out.steps = joinSteps(stepsRaw);
+  out.notes = notes.join('\n');
+  const tm = (out.steps.join(' ') + ' ' + out.notes).match(/(?:время приготовления|готовится|всего)\s*[:—-]?\s*([^.,;]+)/i);
+  if (tm) out.time = tm[1].trim().slice(0, 30);
+  if (!out.title && out.ingredients.length) out.title = 'Без названия';
+  return out;
+}
+const isHeader = (m, s) => !!m && (s.length <= m[0].length + 3 || /^[^:]{0,40}:/.test(s));
+function splitIngLine(s){
+  s = s.replace(/^[-–—•*·]\s*/, '').replace(/^\d{1,2}[.)]\s+(?=[а-яё])/i, '');
+  // «мука 200 г, сахар 100 г, яйца 2 шт» → разбиваем, если в частях есть количества
+  if (s.includes(',') || s.includes(';')){
+    const parts = s.split(/[;,](?![^(]*\))/).map(x => x.trim()).filter(Boolean);
+    const withQty = parts.filter(p => RX.qty.test(p)).length;
+    if (parts.length > 1 && withQty >= Math.ceil(parts.length / 2)) return parts;
+  }
+  return [s];
+}
+function mergeIngLines(arr){
+  // OCR иногда отрывает количество на отдельную строку: «Мука» + «200 г»
+  const out = [];
+  for (const s of arr){
+    if (out.length && RX.qtyStart.test(s) && s.length < 14 && !RX.qty.test(out[out.length - 1])) out[out.length - 1] += ' ' + s;
+    else out.push(s);
+  }
+  return out;
+}
+function joinSteps(arr){
+  const out = [];
+  for (let s of arr){
+    const num = s.match(/^\s*(\d{1,2})\s*[.)]\s*(.+)/);
+    const startsNew = num || /^[-–—•*]\s*/.test(s) || !out.length || /[.!?…)]$/.test(out[out.length - 1]) && /^[А-ЯЁA-Z]/.test(s);
+    s = s.replace(/^\s*\d{1,2}\s*[.)]\s*/, '').replace(/^[-–—•*]\s*/, '');
+    if (startsNew) out.push(s);
+    else out[out.length - 1] = out[out.length - 1].replace(/-$/, '') + (/-$/.test(out[out.length - 1]) ? '' : ' ') + s;
+  }
+  return out.map(x => x.trim()).filter(Boolean);
+}
+$('#btnParse').onclick = () => {
+  const t = $('#eRaw').value.trim(); if (!t){ toast('Вставьте или распознайте текст'); return; }
+  fillFromParsed(parseRecipeText(t)); toast('Текст разложен по разделам — проверьте результат');
+};
+$('#btnParseAi').onclick = async () => {
+  const t = $('#eRaw').value.trim(); if (!t){ toast('Вставьте или распознайте текст'); return; }
+  const engine = S.engine === 'tess' ? (S.geminiKey ? 'gemini' : S.claudeKey ? 'claude' : null) : S.engine;
+  if (!engine){ toast('Добавьте ключ ИИ в настройках'); return; }
+  try { busy('ИИ раскладывает текст по разделам…'); const res = await aiCall(engine, AI_PROMPT_TXT(t)); await applyAiResult(res); }
+  catch (e){ busy(false); await ask('Не получилось', esc(e.message), [{t:'Понятно', v:true, cls:'primary'}]); }
+  busy(false);
+};
+
+/* ---------------------- Архив и резервные копии ---------------------- */
+function recipesHash(){ let h = 0; const s = JSON.stringify(RECIPES.map(r => [r.id, r.updated])); for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; }
+async function makeSnapshot(label, force){
+  if (!RECIPES.length && !force) return null;
+  const snaps = (await DB.all('snapshots')).sort((a, b) => b.id - a.id);
+  const hash = recipesHash();
+  if (!force && snaps[0]?.hash === hash) return null;
+  const snap = {id: Date.now(), date: new Date().toISOString(), label: label || 'Автокопия', count: RECIPES.length, hash, data: JSON.stringify(RECIPES)};
+  await DB.put('snapshots', snap);
+  const keep = Math.max(5, S.snapKeep || 20);
+  for (const old of snaps.slice(keep - 1)) await DB.del('snapshots', old.id);
+  return snap;
+}
+async function autoSnapshot(){
+  if (!S.autoSnap || !RECIPES.length) return;
+  const last = +localStorage.getItem('rc.lastAutoSnap') || 0;
+  if (Date.now() - last < 20 * 3600e3) return;
+  const s = await makeSnapshot('Ежедневная автокопия');
+  localStorage.setItem('rc.lastAutoSnap', Date.now());
+  if (s) localStorage.setItem('rc.dirty', '0');
+}
+function renderBackupBanner(){
+  const el = $('#backupBanner');
+  const last = +localStorage.getItem('rc.lastFileBackup') || 0;
+  const days = (Date.now() - last) / 864e5;
+  if (RECIPES.length >= 3 && days > 30 && !sessionStorage.getItem('rc.bannerHidden')){
+    el.innerHTML = `<div class="banner"><span>💾</span><span class="grow">${last ? 'Архив на устройство не сохранялся больше месяца.' : 'Сохраните архив рецептов в файл — так они не потеряются при смене телефона.'}</span>
+      <button class="btn small primary" id="bnSave">Сохранить</button><button class="icon-btn" id="bnHide" aria-label="Скрыть" style="width:32px;height:32px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>`;
+    $('#bnSave').onclick = () => exportArchive(true);
+    $('#bnHide').onclick = () => { sessionStorage.setItem('rc.bannerHidden', 1); el.innerHTML = ''; };
+  } else el.innerHTML = '';
+}
+async function exportArchive(withScans){
+  busy('Готовлю архив…');
+  const scans = withScans ? (await DB.all('scans')).filter(s => RECIPES.some(r => r.id === s.id)) : [];
+  const data = {app:'moi-recepty', kind:'archive', version: APP_VERSION, exported: new Date().toISOString(), count: RECIPES.length, recipes: RECIPES, scans, settings: {cats: S.cats}};
+  const d = new Date();
+  const name = `Мои-рецепты-архив-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}${withScans ? '' : '-без-сканов'}.json`;
+  busy(false);
+  const ok = await shareOrDownload(JSON.stringify(data), name, 'Архив рецептов');
+  if (ok){ localStorage.setItem('rc.lastFileBackup', Date.now()); renderBackupBanner(); }
+}
+async function shareOrDownload(str, name, title){
+  const blob = new Blob([str], {type:'application/json'});
+  const file = new File([blob], name, {type:'application/json'});
+  const mobile = /iphone|ipad|android/i.test(navigator.userAgent);
+  if (mobile && navigator.canShare?.({files:[file]})){
+    try { await navigator.share({files:[file], title}); return true; }
+    catch (e){ if (e.name === 'AbortError') return false; }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('Файл сохранён: ' + name);
+  return true;
+}
+const safeName = s => s.replace(/[\\/:*?"<>|]+/g, '').trim().slice(0, 60) || 'рецепт';
+
+$('#fImport').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  let data;
+  try { data = JSON.parse(await f.text()); } catch { toast('Это не файл архива рецептов'); return; }
+  await importData(data);
+};
+async function importData(data){
+  const recs = Array.isArray(data?.recipes) ? data.recipes : Array.isArray(data) ? data : null;
+  if (!recs){ toast('В файле не найдено рецептов'); return; }
+  const valid = recs.filter(r => r && r.id && (r.title || r.ingredients));
+  const single = data.kind === 'recipes' || valid.length <= 3;
+  let mode = 'merge';
+  if (!single && RECIPES.length){
+    mode = await ask('Загрузка архива', `В файле рецептов: ${valid.length}. Сейчас в приложении: ${RECIPES.length}.`, [
+      {t:'Объединить (добавить новые, обновить изменённые)', v:'merge', cls:'primary'},
+      {t:'Заменить всё содержимым архива', v:'replace', cls:'danger'},
+      {t:'Отмена', v:null}]);
+    if (!mode) return;
+  }
+  busy('Загружаю рецепты…');
+  await makeSnapshot('Перед загрузкой архива', true);
+  let added = 0, updated = 0;
+  if (mode === 'replace'){
+    await DB.bulk('recipes', valid, true); added = valid.length;
+    if (data.scans?.length) await DB.bulk('scans', data.scans, true);
+  } else {
+    for (const r of valid){
+      const ex = RECIPES.find(x => x.id === r.id);
+      if (!ex){ await DB.put('recipes', r); added++; if (data.scans) { const sc = data.scans.find(s => s.id === r.id); if (sc) await DB.put('scans', sc); } }
+      else if ((r.updated || 0) > (ex.updated || 0)){ await DB.put('recipes', r); updated++; const sc = data.scans?.find(s => s.id === r.id); if (sc) await DB.put('scans', sc); }
+    }
+  }
+  if (data.settings?.cats) { data.settings.cats.forEach(c => { if (!S.cats.includes(c)) S.cats.push(c); }); saveSettings(); }
+  await loadRecipes();
+  busy(false);
+  toast(`Загружено: новых ${added}${updated ? ', обновлено ' + updated : ''}`);
+  if (single && valid.length === 1) go('#view/' + valid[0].id); else go('#list');
+}
+
+async function renderArchive(){
+  const snaps = (await DB.all('snapshots')).sort((a, b) => b.id - a.id);
+  const est = await navigator.storage?.estimate?.().catch(() => null);
+  const persisted = await navigator.storage?.persisted?.().catch(() => false);
+  const last = +localStorage.getItem('rc.lastFileBackup') || 0;
+  const scansCount = (await DB.all('scans')).length;
+  $('#archiveBody').innerHTML = `
+  <div class="set-group"><h2>Архив в файл</h2>
+    <div class="card pad">
+      <p style="margin-top:0">Файл архива — главная защита рецептов. Сохраните его в «Файлы», на Google Диск, в Telegram «Избранное» или отправьте себе. Из этого файла всё восстанавливается на любом телефоне или компьютере.</p>
+      <p class="muted small">Последнее сохранение: <b>${last ? fmtDate(last) : 'ещё не было'}</b> · рецептов: ${RECIPES.length} · со сканами: ${scansCount}</p>
+      <div class="row">
+        <button class="btn primary" id="aExp">Сохранить архив со сканами</button>
+        <button class="btn" id="aExpLite">Без сканов (лёгкий)</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn soft" id="aImp">Загрузить архив или рецепт из файла</button>
+      </div>
+    </div>
+  </div>
+  <div class="set-group"><h2>Кулинарная книга</h2>
+    <div class="card pad">
+      <p style="margin-top:0">Все рецепты для печати или сохранения в PDF — каждый с новой страницы.</p>
+      <div class="row"><button class="btn" id="aPrint">🖨 Печать / PDF всех рецептов</button>
+      <button class="btn" id="aPrintFav">Только избранные</button></div>
+    </div>
+  </div>
+  <div class="set-group"><h2>Внутренние архивные копии</h2>
+    <div class="card">
+      <div class="pad" style="padding-bottom:6px">
+        <p class="muted small" style="margin:0">Приложение само сохраняет копию рецептов раз в день и перед опасными действиями (удаление, загрузка архива). Хранится последних ${S.snapKeep}. Копии содержат текст рецептов; сканы хранятся отдельно и при восстановлении не теряются.</p>
+        <div class="row" style="margin:10px 0"><button class="btn small primary" id="aSnap">Создать копию сейчас</button></div>
+      </div>
+      ${snaps.length ? snaps.map(s => `<div class="snap"><div class="grow"><div>${new Date(s.id).toLocaleString('ru-RU', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'})}</div><div class="muted small">${esc(s.label)} · рецептов: ${s.count}</div></div>
+        <button class="btn small" data-res="${s.id}">Восстановить</button><button class="icon-btn" data-sdl="${s.id}" title="Скачать" aria-label="Скачать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg></button><button class="icon-btn" data-sdel="${s.id}" title="Удалить" aria-label="Удалить">${ICON.del}</button></div>`).join('')
+      : '<div class="pad muted small">Копий пока нет.</div>'}
+    </div>
+  </div>
+  <div class="set-group"><h2>Хранилище</h2>
+    <div class="card pad small">
+      ${est ? `Занято: ${(est.usage / 1048576).toFixed(1)} МБ${est.quota ? ' из ~' + Math.round(est.quota / 1048576) + ' МБ доступных' : ''}<br>` : ''}
+      Защита от автоочистки браузером: <b>${persisted ? 'включена ✓' : 'не подтверждена'}</b>
+      ${persisted ? '' : '<div class="hint">На iPhone добавьте приложение на экран «Домой» (Поделиться → «На экран „Домой“») — так данные хранятся надёжнее. И регулярно сохраняйте архив в файл.</div>'}
+    </div>
+  </div>
+  <footer class="copy">© 2026 Elena Kirsanova</footer>`;
+  $('#aExp').onclick = () => exportArchive(true);
+  $('#aExpLite').onclick = () => exportArchive(false);
+  $('#aImp').onclick = () => $('#fImport').click();
+  $('#aPrint').onclick = () => RECIPES.length ? printRecipes([...RECIPES].sort((a, b) => (a.category || '').localeCompare(b.category || '', 'ru') || a.title.localeCompare(b.title, 'ru'))) : toast('Рецептов пока нет');
+  $('#aPrintFav').onclick = () => { const f = RECIPES.filter(r => r.favorite); f.length ? printRecipes(f) : toast('Нет избранных рецептов'); };
+  $('#aSnap').onclick = async () => { const s = await makeSnapshot('Создана вручную', true); toast(s ? 'Архивная копия создана' : 'Нет рецептов'); renderArchive(); };
+  $('#archiveBody').onclick = async e => {
+    const res = e.target.closest('[data-res]'), dl = e.target.closest('[data-sdl]'), dl2 = e.target.closest('[data-sdel]');
+    if (res){
+      const s = await DB.get('snapshots', +res.dataset.res);
+      const ok = await ask('Восстановить копию?', `Рецепты будут заменены состоянием от ${new Date(s.id).toLocaleString('ru-RU')} (рецептов: ${s.count}). Текущее состояние сначала сохранится отдельной копией.`, [{t:'Восстановить', v:true, cls:'primary'}, {t:'Отмена', v:false}]);
+      if (!ok) return;
+      await makeSnapshot('Перед восстановлением', true);
+      await DB.bulk('recipes', JSON.parse(s.data), true);
+      await loadRecipes(); toast('Копия восстановлена'); renderArchive();
+    }
+    if (dl){ const s = await DB.get('snapshots', +dl.dataset.sdl); await shareOrDownload(JSON.stringify({app:'moi-recepty', kind:'archive', version:APP_VERSION, exported:s.date, recipes:JSON.parse(s.data), scans:[]}), `Мои-рецепты-копия-${s.date.slice(0, 10)}.json`, 'Копия рецептов'); }
+    if (dl2){ await DB.del('snapshots', +dl2.dataset.sdel); renderArchive(); }
+  };
+}
+
+/* печать */
+async function printRecipes(list){
+  const scansAll = await DB.all('scans');
+  const withScans = list.length <= 30;
+  $('#printArea').innerHTML = list.map(r => {
+    const sc = withScans ? (scansAll.find(s => s.id === r.id)?.images || []) : [];
+    return `<div class="p-rec"><h1>${esc(r.title)}</h1>
+    <div class="meta">${[r.category, r.servings && r.servings + ' порц.', r.time].filter(Boolean).map(esc).join(' · ')}</div>
+    ${r.ingredients?.length ? `<h2>Ингредиенты</h2><ul>${r.ingredients.map(x => /:\s*$/.test(x) ? `</ul><b>${esc(x)}</b><ul>` : `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+    ${r.steps?.length ? `<h2>Приготовление</h2><ol>${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>` : ''}
+    ${r.notes ? `<h2>Заметки</h2><p style="white-space:pre-wrap">${esc(r.notes)}</p>` : ''}
+    ${sc.length ? `<h2>Оригинал</h2>${sc.map(s => `<img src="${s}">`).join('')}` : ''}
+    <div class="p-copy">«Мои рецепты» · © 2026 Elena Kirsanova</div></div>`;
+  }).join('');
+  setTimeout(() => window.print(), 300);
+}
+
+/* ---------------------- Настройки ---------------------- */
+function renderSettings(){
+  const b = $('#settingsBody');
+  b.innerHTML = `
+  <div class="set-group"><h2>Тема оформления</h2>
+    <div class="card pad"><div class="themes">${THEMES.map(t => `<div class="th ${S.theme === t.id ? 'on' : ''}" data-theme-id="${t.id}"><div class="sw">${t.sw.map(c => `<i style="background:${c}"></i>`).join('')}</div>${t.name}</div>`).join('')}</div></div>
+  </div>
+  <div class="set-group"><h2>Шрифт</h2>
+    <div class="card">
+      <div class="set-item"><div style="font-weight:600">Размер текста: <span id="fsVal">${S.fontSize}</span> px</div>
+        <input type="range" id="fsRange" min="14" max="26" step="1" value="${S.fontSize}">
+        <div class="row small muted" style="justify-content:space-between"><span>А мельче</span><span style="font-size:1.4em">А крупнее</span></div></div>
+      <div class="set-item"><div style="font-weight:600">Шрифт текста</div><div class="fonts" id="fontsBody">${fontCards(S.fontBody)}</div></div>
+      <div class="set-item"><div style="font-weight:600">Шрифт заголовков</div><div class="fonts" id="fontsHead">${fontCards(S.fontHead)}</div></div>
+    </div>
+  </div>
+  <div class="set-group"><h2>Распознавание сканов</h2>
+    <div class="card">
+      <div class="set-item">
+        <div style="font-weight:600;margin-bottom:8px">Способ по умолчанию</div>
+        <div class="seg" id="engSeg">${[['gemini','Gemini'],['claude','Claude'],['tess','Офлайн']].map(([v, t]) => `<button data-v="${v}" class="${S.engine === v ? 'on' : ''}">${t}</button>`).join('')}</div>
+        <div class="hint">Рукописный текст хорошо читают только ИИ-сервисы (Gemini или Claude). Офлайн-режим — для печатного текста.</div>
+      </div>
+      <div class="set-item">
+        <div style="font-weight:600">Google Gemini <span class="chip">есть бесплатный тариф</span></div>
+        <label class="f" for="gKey">Ключ API</label>
+        <input class="inp" id="gKey" type="password" autocomplete="off" placeholder="AIza…" value="${esc(S.geminiKey)}">
+        <label class="f" for="gModel">Модель</label>
+        <input class="inp" id="gModel" list="gModels" value="${esc(S.geminiModel)}"><datalist id="gModels"><option value="gemini-flash-latest"><option value="gemini-pro-latest"></datalist>
+        <div class="row" style="margin-top:8px"><button class="btn small soft" id="gTest">Проверить ключ</button><span class="small muted" id="gRes"></span></div>
+        <div class="hint">Ключ бесплатно создаётся на <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> (вход через Google-аккаунт). «gemini-flash-latest» — всегда актуальная быстрая модель; «pro» точнее на очень сложном почерке.</div>
+      </div>
+      <div class="set-item">
+        <div style="font-weight:600">Anthropic Claude</div>
+        <label class="f" for="cKey">Ключ API</label>
+        <input class="inp" id="cKey" type="password" autocomplete="off" placeholder="sk-ant-…" value="${esc(S.claudeKey)}">
+        <label class="f" for="cModel">Модель</label>
+        <input class="inp" id="cModel" list="cModels" value="${esc(S.claudeModel)}"><datalist id="cModels"><option value="claude-sonnet-5-5"><option value="claude-opus-5-5"><option value="claude-haiku-5-5"></datalist>
+        <div class="row" style="margin-top:8px"><button class="btn small soft" id="cTest">Проверить ключ</button><span class="small muted" id="cRes"></span></div>
+        <div class="hint">Ключ создаётся на <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> (платно, по факту использования — распознавание одной страницы стоит доли цента/рубля).</div>
+      </div>
+      <div class="set-item hint" style="margin:0">🔒 Ключи хранятся только на этом устройстве и отправляются только в выбранный сервис вместе со сканом. Из России сервисы Gemini и Claude могут работать только через VPN.</div>
+      <div class="set-item"><label class="switch"><span>Хранить сканы вместе с рецептом<div class="hint">Оригинал рукописи всегда будет под рукой и попадёт в архив</div></span><input type="checkbox" id="swKeep" ${S.keepScans ? 'checked' : ''}></label></div>
+      <div class="set-item"><label class="switch"><span>Улучшать контраст для офлайн-режима</span><input type="checkbox" id="swEnh" ${S.enhance ? 'checked' : ''}></label></div>
+    </div>
+  </div>
+  <div class="set-group"><h2>Поиск и разделы</h2>
+    <div class="card">
+      <div class="set-item"><label class="switch"><span>Искать также в тексте приготовления и заметках</span><input type="checkbox" id="swSteps" ${S.searchSteps ? 'checked' : ''}></label></div>
+      <div class="set-item"><div style="font-weight:600">Разделы рецептов</div>
+        <textarea class="inp" id="catsTa" rows="6" style="margin-top:8px">${esc(S.cats.join('\n'))}</textarea>
+        <div class="hint">По одному на строку. Порядок здесь = порядок в фильтре.</div></div>
+    </div>
+  </div>
+  <div class="set-group"><h2>Архивные копии</h2>
+    <div class="card">
+      <div class="set-item"><label class="switch"><span>Ежедневная автокопия внутри приложения</span><input type="checkbox" id="swSnap" ${S.autoSnap ? 'checked' : ''}></label></div>
+      <div class="set-item"><div style="font-weight:600">Хранить копий: <span id="snVal">${S.snapKeep}</span></div><input type="range" id="snRange" min="5" max="60" step="5" value="${S.snapKeep}"></div>
+    </div>
+  </div>
+  <div class="set-group"><h2>Данные</h2>
+    <div class="card pad"><div class="row">
+      <button class="btn danger" id="wipe">Удалить все рецепты</button>
+    </div><div class="hint">Перед удалением автоматически создаётся архивная копия.</div></div>
+  </div>
+  <div class="set-group"><h2>О приложении</h2>
+    <div class="card pad small">
+      <div class="head-font" style="font-size:1.2em">Мои рецепты</div>
+      <div class="muted">Версия ${APP_VERSION}</div>
+      <p>Личная кулинарная книга: распознавание рукописных и печатных рецептов со сканов и фото, автоматическое заполнение разделов, поиск по названию и ингредиентам, режим готовки, архивные копии, печать.</p>
+      <p style="margin-bottom:0">© 2026 Elena Kirsanova. Все права защищены. Копирование, распространение, изменение и продажа приложения или его частей без письменного разрешения правообладателя запрещены.</p>
+    </div>
+  </div>`;
+  $$('.th', b).forEach(el => el.onclick = () => { S.theme = el.dataset.themeId; saveSettings(); applyTheme(); renderSettings(); });
+  $('#fsRange').oninput = e => { S.fontSize = +e.target.value; $('#fsVal').textContent = S.fontSize; applyFonts(); saveSettings(); };
+  $('#fontsBody').onclick = e => { const f = e.target.closest('[data-font]'); if (!f) return; S.fontBody = f.dataset.font; saveSettings(); applyFonts(); renderSettings(); };
+  $('#fontsHead').onclick = e => { const f = e.target.closest('[data-font]'); if (!f) return; S.fontHead = f.dataset.font; saveSettings(); applyFonts(); renderSettings(); };
+  $('#engSeg').onclick = e => { const x = e.target.closest('[data-v]'); if (!x) return; S.engine = x.dataset.v; saveSettings(); $$('#engSeg button').forEach(y => y.classList.toggle('on', y === x)); };
+  const bindVal = (id, key) => $('#' + id).addEventListener('change', e => { S[key] = e.target.value.trim(); saveSettings(); });
+  bindVal('gKey', 'geminiKey'); bindVal('gModel', 'geminiModel'); bindVal('cKey', 'claudeKey'); bindVal('cModel', 'claudeModel');
+  const bindSw = (id, key) => $('#' + id).addEventListener('change', e => { S[key] = e.target.checked; saveSettings(); });
+  bindSw('swKeep', 'keepScans'); bindSw('swEnh', 'enhance'); bindSw('swSteps', 'searchSteps'); bindSw('swSnap', 'autoSnap');
+  $('#snRange').oninput = e => { S.snapKeep = +e.target.value; $('#snVal').textContent = S.snapKeep; saveSettings(); };
+  $('#catsTa').onchange = e => { const c = lines(e.target.value); S.cats = c.length ? [...new Set(c)] : DEFAULT_CATS.slice(); saveSettings(); };
+  $('#gTest').onclick = () => testKey('gemini');
+  $('#cTest').onclick = () => testKey('claude');
+  $('#wipe').onclick = async () => {
+    const ok = await ask('Удалить все рецепты?', `Будет удалено рецептов: ${RECIPES.length} и все сканы. Текст рецептов останется во внутренней архивной копии.`, [{t:'Удалить всё', v:true, cls:'danger'}, {t:'Отмена', v:false}]);
+    if (!ok) return;
+    await makeSnapshot('Перед удалением всех рецептов', true);
+    await DB.clear('recipes'); await DB.clear('scans'); RECIPES = []; buildIndex(); toast('Все рецепты удалены');
+  };
+}
+function fontCards(sel){
+  return FONTS.map(f => `<div class="fo ${sel === f.id ? 'on' : ''}" data-font="${f.id}"><div class="s" style="font-family:${f.css.replace(/"/g, "'")}">Бабушкин пирог</div><div class="n">${f.name}</div></div>`).join('');
+}
+async function loadAllFontPreviews(){
+  const fams = FONTS.filter(f => f.g).map(f => 'family=' + f.g).join('&');
+  if (!$('#fontPreviewLink')){ const l = document.createElement('link'); l.id = 'fontPreviewLink'; l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?' + fams + '&display=swap&text=' + encodeURIComponent('Бабушкин пирог'); document.head.appendChild(l); }
+}
+async function testKey(engine){
+  const resEl = $(engine === 'gemini' ? '#gRes' : '#cRes');
+  S.geminiKey = $('#gKey').value.trim(); S.claudeKey = $('#cKey').value.trim(); saveSettings();
+  resEl.textContent = 'Проверяю…';
+  try {
+    if (engine === 'gemini'){
+      if (!S.geminiKey) throw new Error('введите ключ');
+      const r = await fetchT('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', {headers:{'x-goog-api-key': S.geminiKey}}, 20000);
+      const j = await r.json(); if (!r.ok) throw new Error(apiErr('Gemini', r.status, j?.error?.message));
+      const ms = (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes('generateContent') && /gemini/.test(m.name) && !/tts|image|audio|live|embed|robot/i.test(m.name)).map(m => m.name.replace('models/', ''));
+      $('#gModels').innerHTML = ms.map(m => `<option value="${m}">`).join('');
+      resEl.innerHTML = `<span style="color:var(--ok)">✓ Ключ работает</span> · доступно моделей: ${ms.length}`;
+    } else {
+      if (!S.claudeKey) throw new Error('введите ключ');
+      const r = await fetchT('https://api.anthropic.com/v1/models?limit=50', {headers:{'x-api-key': S.claudeKey, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true'}}, 20000);
+      const j = await r.json(); if (!r.ok) throw new Error(apiErr('Claude', r.status, j?.error?.message));
+      const ms = (j.data || []).map(m => m.id);
+      $('#cModels').innerHTML = ms.map(m => `<option value="${m}">`).join('');
+      resEl.innerHTML = `<span style="color:var(--ok)">✓ Ключ работает</span> · моделей: ${ms.length}`;
+    }
+  } catch (e){ resEl.innerHTML = `<span style="color:var(--danger)">✗ ${esc(e.message)}</span>`; }
+}
+
+/* ---------------------- Общие UI-элементы ---------------------- */
+function ask(title, html, buttons){
+  return new Promise(res => {
+    const ov = document.createElement('div'); ov.className = 'ov';
+    ov.innerHTML = `<div class="modal" role="dialog" aria-modal="true"><h2>${esc(title)}</h2>${html ? `<div class="muted">${html}</div>` : ''}<div class="btns">${buttons.map((b, i) => `<button class="btn ${b.cls || ''}" data-i="${i}">${esc(b.t)}</button>`).join('')}</div></div>`;
+    const done = v => { ov.remove(); res(v); };
+    ov.onclick = e => { if (e.target === ov) done(buttons[buttons.length - 1].v ?? null); const b = e.target.closest('[data-i]'); if (b) done(buttons[+b.dataset.i].v); };
+    document.body.appendChild(ov);
+  });
+}
+let busyEl = null;
+function busy(msg, sub = '', prog = null){
+  if (msg === false){ busyEl?.remove(); busyEl = null; return; }
+  if (!busyEl){ busyEl = document.createElement('div'); busyEl.className = 'ov'; busyEl.id = 'busy'; busyEl.innerHTML = '<div class="modal"><div class="spinner"></div><div class="b-msg head-font" style="font-size:1.05em"></div><div class="prog hidden"><i></i></div><div class="b-sub muted small"></div></div>'; document.body.appendChild(busyEl); }
+  busyEl.querySelector('.b-msg').textContent = msg;
+  if (sub !== '') busyEl.querySelector('.b-sub').textContent = sub;
+  const p = busyEl.querySelector('.prog');
+  p.classList.toggle('hidden', prog === null);
+  if (prog !== null) p.querySelector('i').style.width = Math.round(prog * 100) + '%';
+}
+let toastT;
+function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800); }
+function showImage(src){
+  const v = $('#imgView'); v.querySelector('img').src = src; v.classList.remove('hidden', 'zoom'); document.body.style.overflow = 'hidden';
+}
+$('#imgView').onclick = e => {
+  const v = $('#imgView');
+  if (e.target.closest('.close')){ v.classList.add('hidden'); document.body.style.overflow = ''; return; }
+  if (e.target.tagName === 'IMG') v.classList.toggle('zoom');
+  else { v.classList.add('hidden'); document.body.style.overflow = ''; }
+};
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){ if (!$('#imgView').classList.contains('hidden')){ $('#imgView').classList.add('hidden'); document.body.style.overflow = ''; } else if (!$('#cook').classList.contains('hidden')) closeCook(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's' && current.view === 'edit'){ e.preventDefault(); saveEditor(); }
+});
+addEventListener('beforeunload', e => { if (editorDirty){ e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------------------- Запуск ---------------------- */
+(async function init(){
+  applyTheme(); applyFonts();
+  try { await DB.open(); await loadRecipes(); }
+  catch (e){ document.body.innerHTML = '<div class="wrap empty">Не удалось открыть хранилище браузера. Возможно, включён приватный режим.<br><small>' + esc(e.message) + '</small></div>'; return; }
+  loadAllFontPreviews();
+  route();
+  autoSnapshot();
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>

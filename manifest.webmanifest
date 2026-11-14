@@ -1,0 +1,18 @@
+{
+  "name": "Мои рецепты",
+  "short_name": "Рецепты",
+  "description": "Кулинарная книга: распознавание рукописных рецептов со сканов, поиск по названию и ингредиентам, архивные копии. © 2026 Elena Kirsanova",
+  "lang": "ru",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f7f3ec",
+  "theme_color": "#f7f3ec",
+  "categories": ["food", "lifestyle"],
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
